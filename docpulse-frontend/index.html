@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      // Prevent "Cannot set property fetch of #<Window> which has only a getter"
+      try {
+        let currentFetch = window.fetch ? window.fetch.bind(window) : undefined;
+        Object.defineProperty(window, 'fetch', {
+          get() {
+            return currentFetch;
+          },
+          set(newFetch) {
+            currentFetch = newFetch;
+          },
+          configurable: true,
+          enumerable: true
+        });
+      } catch (e) {
+        console.warn('Fetch property descriptor setup note:', e);
+      }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zahid's Clinic - Dr. Zahid Hussain Consultation & Appointment Platform</title>
+    <meta name="description" content="Professional Medical Consultation, Diagnosis & Treatment by Dr. Zahid Hussain (MBBS, FCPS Internal Medicine)." />
+    <meta property="og:title" content="Zahid's Clinic" />
+    <meta property="og:description" content="Professional Medical Consultation, Diagnosis & Treatment by Dr. Zahid Hussain." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

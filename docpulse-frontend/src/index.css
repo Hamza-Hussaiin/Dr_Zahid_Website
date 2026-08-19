@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-main: #E6E6E6;
+    --text-charcoal: #39393A;
+    --brand-green: #5B8C5A;
+    --brand-green-hover: #4A7349;
+    --brand-green-tint: rgba(91, 140, 90, 0.12);
+    --brand-rose: #A37774;
+    --brand-rose-hover: #8F6663;
+    --brand-rose-tint: rgba(163, 119, 116, 0.14);
+    --card-surface: #FFFFFF;
+    --card-border: #D2D2D2;
+    --card-muted: #F3F3F3;
+  }
+
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-charcoal);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Custom Theme Color Utilities */
+.bg-theme-main { background-color: #E6E6E6; }
+.bg-theme-charcoal { background-color: #39393A; }
+.bg-theme-charcoal-dark { background-color: #282829; }
+.bg-theme-green { background-color: #5B8C5A; }
+.bg-theme-green-hover:hover { background-color: #4A7349; }
+.bg-theme-green-tint { background-color: rgba(91, 140, 90, 0.12); }
+.bg-theme-rose { background-color: #A37774; }
+.bg-theme-rose-hover:hover { background-color: #8F6663; }
+.bg-theme-rose-tint { background-color: rgba(163, 119, 116, 0.14); }
+.bg-theme-card { background-color: #FFFFFF; }
+.bg-theme-muted { background-color: #EFEFEF; }
+
+.text-theme-charcoal { color: #39393A; }
+.text-theme-charcoal-muted { color: #68686B; }
+.text-theme-green { color: #5B8C5A; }
+.text-theme-green-dark { color: #436B42; }
+.text-theme-rose { color: #A37774; }
+.text-theme-rose-dark { color: #825B58; }
+
+.border-theme-charcoal { border-color: #39393A; }
+.border-theme-green { border-color: #5B8C5A; }
+.border-theme-rose { border-color: #A37774; }
+.border-theme-border { border-color: #D6D6D6; }
+.border-theme-border-subtle { border-color: #E2E2E2; }
