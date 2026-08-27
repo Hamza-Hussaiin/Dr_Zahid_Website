@@ -4,8 +4,6 @@ import path from 'path';
 import { env } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import { runBootstrap } from './services/bootstrap.service';
-import { requireAuthViaHeaderOrQuery } from './middleware/authViaQuery';
-
 import authRoutes from './routes/auth.routes';
 import doctorsRoutes from './routes/doctors.routes';
 import appointmentsRoutes from './routes/appointments.routes';
@@ -37,7 +35,6 @@ app.use(express.json({ limit: '15mb' })); // generous limit: attachments arrive 
 // The frontend should append "?token=<jwt>" when linking directly to a
 // file (e.g. in an <img>/<a> tag), since those can't send an Authorization
 // header.
-app.use('/uploads', requireAuthViaHeaderOrQuery, express.static(path.join(process.cwd(), 'uploads')));
 
 app.get('/health', (_req, res) => {
   res.json({ success: true, status: 'ok', timestamp: new Date().toISOString() });

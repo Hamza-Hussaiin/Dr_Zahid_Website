@@ -1,3 +1,4 @@
+import { sendEmail, doctorWelcomeEmail } from '../services/email.service';
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
@@ -141,6 +142,12 @@ export const addDoctor = asyncHandler(async (req: Request, res: Response) => {
     .returning();
 
   broadcast({ type: 'doctor_added', payload: serializeDoctor(doctorRow) });
+
+
+    if (generatedPassword) {
+    const { subject, html } = doctorWelcomeEmail(parsed.name, parsed.email, generatedPassword);
+    sendEmail(parsed.email, subject, html);
+  }
 
   return res.status(201).json({
     success: true,

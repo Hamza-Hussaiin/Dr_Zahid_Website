@@ -1,9 +1,14 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import fs from 'fs';
-import path from 'path';
-import { generateId } from '../utils/ids';
+import { v2 as cloudinary } from 'cloudinary';
+import { env } from '../config/env';
 import { asyncHandler, ApiError } from '../middleware/errorHandler';
+
+cloudinary.config({
+  cloud_name: env.cloudinary.cloudName,
+  api_key: env.cloudinary.apiKey,
+  api_secret: env.cloudinary.apiSecret,
+});
 
 const uploadSchema = z.object({
   fileName: z.string().min(1),
@@ -16,9 +21,7 @@ const ALLOWED_EXACT_TYPES = [
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
-
-const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 function humanFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -32,12 +35,10 @@ export const uploadFile = asyncHandler(async (req: Request, res: Response) => {
   const isAllowedType =
     ALLOWED_MIME_PREFIXES.some((prefix) => parsed.fileType.startsWith(prefix)) ||
     ALLOWED_EXACT_TYPES.includes(parsed.fileType);
-
   if (!isAllowedType) {
     throw new ApiError(400, 'Unsupported file type. Please upload a PDF, Word document, or image.');
   }
 
-  // fileBase64 arrives as a data URL: "data:<mime>;base64,<data>"
   const commaIndex = parsed.fileBase64.indexOf(',');
   const base64Data = commaIndex >= 0 ? parsed.fileBase64.slice(commaIndex + 1) : parsed.fileBase64;
   const buffer = Buffer.from(base64Data, 'base64');
@@ -46,20 +47,17 @@ export const uploadFile = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(400, 'File is too large. Maximum size is 10 MB.');
   }
 
-  if (!fs.existsSync(UPLOAD_DIR)) {
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-  }
-
-  const ext = path.extname(parsed.fileName) || '';
-  const safeName = `${generateId('file')}${ext}`;
-  const filePath = path.join(UPLOAD_DIR, safeName);
-  fs.writeFileSync(filePath, buffer);
-
-  const url = `/uploads/${safeName}`;
+  const uploadResult = await new Promise<any>((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { resource_type: 'auto', folder: 'docpulse' },
+      (error, result) => (error ? reject(error) : resolve(result))
+    );
+    stream.end(buffer);
+  });
 
   return res.status(201).json({
     success: true,
-    url,
+    url: uploadResult.secure_url,
     name: parsed.fileName,
     size: humanFileSize(buffer.length),
     type: parsed.fileType,
