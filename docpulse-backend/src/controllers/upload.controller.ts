@@ -49,15 +49,17 @@ export const uploadFile = asyncHandler(async (req: Request, res: Response) => {
 
   const uploadResult = await new Promise<any>((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { resource_type: 'auto', folder: 'docpulse' },
+      { resource_type: 'auto', folder: 'docpulse', type: 'authenticated' },
       (error, result) => (error ? reject(error) : resolve(result))
     );
     stream.end(buffer);
   });
 
+  const proxyUrl = `/api/attachments/${encodeURIComponent(uploadResult.public_id)}?rt=${uploadResult.resource_type}`;
+
   return res.status(201).json({
     success: true,
-    url: uploadResult.secure_url,
+    url: proxyUrl,
     name: parsed.fileName,
     size: humanFileSize(buffer.length),
     type: parsed.fileType,

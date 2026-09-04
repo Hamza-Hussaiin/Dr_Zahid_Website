@@ -10,7 +10,6 @@ import { AppProvider, useApp } from './context/AppContext';
 // Common UI Components
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
-import { RoleSwitcherBanner } from './components/common/RoleSwitcherBanner';
 import { ToastContainer } from './components/common/ToastContainer';
 import { AuthModal } from './components/auth/AuthModal';
 
@@ -98,7 +97,6 @@ const MainContent: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans antialiased selection:bg-teal-100 selection:text-teal-900">
-      <RoleSwitcherBanner />
       <Navbar />
       
       <main className="flex-1">

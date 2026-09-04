@@ -25,14 +25,11 @@ export const env = {
     phone: process.env.BOOTSTRAP_ADMIN_PHONE || '',
   },
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
-
-    resend: {
+  resend: {
     apiKey: process.env.RESEND_API_KEY || '',
     fromEmail: process.env.RESEND_FROM_EMAIL || 'DocPulse <onboarding@resend.dev>',
   },
-
-
-    cloudinary: {
+  cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
     apiKey: process.env.CLOUDINARY_API_KEY || '',
     apiSecret: process.env.CLOUDINARY_API_SECRET || '',

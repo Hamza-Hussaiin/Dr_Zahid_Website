@@ -19,6 +19,8 @@ export type AppView =
   | 'contact'
   | 'patient-dashboard'
   | 'doctor-dashboard'
+  | 'doctor-slots'
+  | 'doctor-profile-edit'
   | 'admin-dashboard'
   | 'booking'
   | 'profile-settings';

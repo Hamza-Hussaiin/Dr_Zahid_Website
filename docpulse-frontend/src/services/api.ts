@@ -30,11 +30,11 @@ function getAuthHeaders(contentType: string = 'application/json'): Record<string
 
 export const api = {
   // Auth
-  async login(email?: string, password?: string, role?: string): Promise<{ success: boolean; user: User; token?: string; message?: string }> {
+    async login(email?: string, password?: string): Promise<{ success: boolean; user: User; token?: string; message?: string }> {
     const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, role })
+      body: JSON.stringify({ email, password })
     });
     const data = await res.json();
     if (data.success && data.token) {

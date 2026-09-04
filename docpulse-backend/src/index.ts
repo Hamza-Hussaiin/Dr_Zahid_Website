@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
 import { env } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import { runBootstrap } from './services/bootstrap.service';
@@ -16,6 +15,7 @@ import adminRoutes from './routes/admin.routes';
 import contentRoutes from './routes/content.routes';
 import servicesRoutes from './routes/services.routes';
 import uploadRoutes from './routes/upload.routes';
+import attachmentsRoutes from './routes/attachments.routes';
 import eventsRoutes from './routes/events.routes';
 import aiRoutes from './routes/ai.routes';
 
@@ -29,12 +29,7 @@ app.use(
 );
 app.use(express.json({ limit: '15mb' })); // generous limit: attachments arrive as base64 JSON
 
-// Serve uploaded files (attachments, avatars, medical documents) - gated
-// behind a valid login. Attachments can include patient reports and
-// prescriptions, so these must never be publicly reachable by URL alone.
-// The frontend should append "?token=<jwt>" when linking directly to a
-// file (e.g. in an <img>/<a> tag), since those can't send an Authorization
-// header.
+
 
 app.get('/health', (_req, res) => {
   res.json({ success: true, status: 'ok', timestamp: new Date().toISOString() });
@@ -52,6 +47,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/services', servicesRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/attachments', attachmentsRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/ai', aiRoutes);
 

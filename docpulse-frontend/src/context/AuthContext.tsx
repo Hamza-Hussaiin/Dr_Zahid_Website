@@ -11,9 +11,8 @@ interface AuthContextType {
   isPatient: boolean;
   isDoctor: boolean;
   isAdminDoctor: boolean;
-  login: (email?: string, password?: string, role?: string) => Promise<{ success: boolean; message?: string }>;
-  register: (data: any) => Promise<{ success: boolean; message?: string }>;
-  quickLogin: (role: 'patient' | 'doctor' | 'admin_doctor' | 'visitor') => Promise<void>;
+  login: (email?: string, password?: string) => Promise<{ success: boolean; message?: string; user?: User }>;
+  register: (data: any) => Promise<{ success: boolean; message?: string; user?: User }>;
   logout: () => void;
   updateCurrentUser: (userData: Partial<User>) => void;
   refreshProfiles: () => Promise<void>;
@@ -74,13 +73,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     refreshProfiles();
   }, [user]);
 
-  const login = async (email?: string, password?: string, role?: string) => {
+  const login = async (email?: string, password?: string) => {
     try {
-      const res = await api.login(email, password, role);
+      const res = await api.login(email, password);
       if (res.success && res.user) {
         setUser(res.user);
         localStorage.setItem('zahid_clinic_user', JSON.stringify(res.user));
-        return { success: true };
+        return { success: true, user: res.user };
       }
       return { success: false, message: res.message || 'Login failed' };
     } catch (err: any) {
@@ -94,20 +93,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.success && res.user) {
         setUser(res.user);
         localStorage.setItem('zahid_clinic_user', JSON.stringify(res.user));
-        return { success: true };
+        return { success: true, user: res.user };
       }
       return { success: false, message: res.message || 'Registration failed' };
     } catch (err: any) {
       return { success: false, message: err.message || 'Network error' };
     }
-  };
-
-  const quickLogin = async (role: 'patient' | 'doctor' | 'admin_doctor' | 'visitor') => {
-    if (role === 'visitor') {
-      logout();
-      return;
-    }
-    await login(undefined, undefined, role);
   };
 
   const logout = () => {
@@ -144,7 +135,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAdminDoctor,
         login,
         register,
-        quickLogin,
         logout,
         updateCurrentUser,
         refreshProfiles

@@ -1,39 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
-import { X, User, Stethoscope, Lock, Mail, ArrowRight } from 'lucide-react';
+import { X, User, Lock, Mail, ArrowRight } from 'lucide-react';
 
 export const AuthModal: React.FC = () => {
-  const { login, register, quickLogin } = useAuth();
-  const { 
-    isAuthModalOpen, 
-    closeAuthModal, 
-    authModalTab, 
-    authModalRole, 
+  const { login, register } = useAuth();
+  const {
+    isAuthModalOpen,
+    closeAuthModal,
+    authModalTab,
     setCurrentView,
-    addToast 
+    addToast
   } = useApp();
 
   const [tab, setTab] = useState<'login' | 'register'>('login');
-  const [role, setRole] = useState<'patient' | 'doctor' | 'admin_doctor'>('patient');
 
   // Form states
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('0300-1234567');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [dob, setDob] = useState('1995-06-14');
+  const [dob, setDob] = useState('');
   const [gender, setGender] = useState('female');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     setTab(authModalTab);
-    setRole(authModalRole);
     setErrorMsg('');
-  }, [authModalTab, authModalRole, isAuthModalOpen]);
+  }, [authModalTab, isAuthModalOpen]);
 
   if (!isAuthModalOpen) return null;
+
+  // Sends the user to the right dashboard based on the role the SERVER
+  // returned after a successful login/registration - never a guess made
+  // beforehand. This is the only source of truth for where someone lands.
+  const redirectForRole = (role?: string) => {
+    if (role === 'admin_doctor' || role === 'doctor') {
+      setCurrentView('doctor-dashboard');
+    } else {
+      setCurrentView('patient-dashboard');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +49,7 @@ export const AuthModal: React.FC = () => {
     setErrorMsg('');
 
     if (tab === 'login') {
-      const res = await login(email, password, role);
+      const res = await login(email, password);
       if (res.success) {
         addToast({
           type: 'success',
@@ -49,8 +57,7 @@ export const AuthModal: React.FC = () => {
           message: `Successfully signed in.`
         });
         closeAuthModal();
-        if (role === 'admin_doctor' || role === 'doctor') setCurrentView('doctor-dashboard');
-        else setCurrentView('patient-dashboard');
+        redirectForRole(res.user?.role);
       } else {
         setErrorMsg(res.message || 'Login failed. Please check your credentials.');
       }
@@ -60,12 +67,13 @@ export const AuthModal: React.FC = () => {
         setIsLoading(false);
         return;
       }
+      // Self-registration always creates a patient account. Doctor accounts
+      // are created separately by an admin, so there's no role choice here.
       const res = await register({
         name,
         email,
         phone,
         password,
-        role,
         dob,
         gender
       });
@@ -76,8 +84,7 @@ export const AuthModal: React.FC = () => {
           message: `Welcome to Zahid's Clinic, ${name}.`
         });
         closeAuthModal();
-        if (role === 'doctor' || role === 'admin_doctor') setCurrentView('doctor-dashboard');
-        else setCurrentView('patient-dashboard');
+        redirectForRole(res.user?.role);
       } else {
         setErrorMsg(res.message || 'Registration failed.');
       }
@@ -85,24 +92,10 @@ export const AuthModal: React.FC = () => {
     setIsLoading(false);
   };
 
-  const handleQuickDemo = async (demoRole: 'patient' | 'doctor' | 'admin_doctor') => {
-    setIsLoading(true);
-    await quickLogin(demoRole);
-    addToast({
-      type: 'success',
-      title: 'Demo Session Active',
-      message: `Signed in as ${demoRole === 'admin_doctor' || demoRole === 'doctor' ? 'Dr. Zahid Hussain' : 'Patient Sarah Jenkins'}.`
-    });
-    setIsLoading(false);
-    closeAuthModal();
-    if (demoRole === 'admin_doctor' || demoRole === 'doctor') setCurrentView('doctor-dashboard');
-    else setCurrentView('patient-dashboard');
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-[#FFFFFF] rounded-2xl shadow-2xl border border-[#D6D6D6] w-full max-w-md overflow-hidden relative">
-        
+
         {/* Header */}
         <div className="p-6 bg-[#39393A] text-white relative">
           <button
@@ -144,69 +137,10 @@ export const AuthModal: React.FC = () => {
 
         {/* Body Content */}
         <div className="p-6">
-
-          {/* Quick 1-Click Demo Profiles */}
-          <div className="mb-5 p-3 rounded-xl bg-[#E6E6E6]/60 border border-[#D6D6D6]">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-stone-600 mb-2">
-              Instant 1-Click Demo Profiles:
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('patient')}
-                className="p-2 text-center rounded-lg bg-white hover:bg-[#E6E6E6] border border-[#D6D6D6] hover:border-[#5B8C5A] transition-all cursor-pointer text-xs"
-              >
-                <span className="block font-bold text-[#39393A]">Sarah Jenkins</span>
-                <span className="text-[10px] text-[#5B8C5A] font-medium">Patient</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('admin_doctor')}
-                className="p-2 text-center rounded-lg bg-white hover:bg-[#E6E6E6] border border-[#D6D6D6] hover:border-[#5B8C5A] transition-all cursor-pointer text-xs"
-              >
-                <span className="block font-bold text-[#39393A]">Dr. Zahid Hussain</span>
-                <span className="text-[10px] text-[#5B8C5A] font-medium">Consultant Physician</span>
-              </button>
-            </div>
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-3.5">
             {errorMsg && (
               <div className="p-3 text-xs bg-[#A37774]/15 text-[#A37774] rounded-lg border border-[#A37774]/30 font-medium">
                 {errorMsg}
-              </div>
-            )}
-
-            {/* Role Selection for Registration */}
-            {tab === 'register' && (
-              <div>
-                <label className="block text-xs font-semibold text-[#39393A] mb-1">Select Account Type</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setRole('patient')}
-                    className={`p-2.5 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer ${
-                      role === 'patient'
-                        ? 'border-[#5B8C5A] bg-[#5B8C5A]/15 text-[#5B8C5A] font-bold'
-                        : 'border-[#D6D6D6] text-[#39393A] hover:bg-[#E6E6E6]/40'
-                    }`}
-                  >
-                    <User className="w-4 h-4" />
-                    <span>Patient</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRole('doctor')}
-                    className={`p-2.5 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer ${
-                      role === 'doctor'
-                        ? 'border-[#5B8C5A] bg-[#5B8C5A]/15 text-[#5B8C5A] font-bold'
-                        : 'border-[#D6D6D6] text-[#39393A] hover:bg-[#E6E6E6]/40'
-                    }`}
-                  >
-                    <Stethoscope className="w-4 h-4" />
-                    <span>Doctor</span>
-                  </button>
-                </div>
               </div>
             )}
 
@@ -243,30 +177,44 @@ export const AuthModal: React.FC = () => {
             </div>
 
             {tab === 'register' && (
-              <div className="grid grid-cols-2 gap-2">
+              <>
                 <div>
-                  <label className="block text-xs font-semibold text-[#39393A] mb-1">Date of Birth</label>
+                  <label className="block text-xs font-semibold text-[#39393A] mb-1">Phone Number</label>
                   <input
-                    type="date"
-                    value={dob}
-                    onChange={e => setDob(e.target.value)}
+                    type="tel"
+                    required
+                    placeholder="0300-1234567"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-lg border border-[#D6D6D6] focus:outline-hidden focus:ring-2 focus:ring-[#5B8C5A]/20 focus:border-[#5B8C5A]"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-[#39393A] mb-1">Gender</label>
-                  <select
-                    value={gender}
-                    onChange={e => setGender(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-[#D6D6D6] focus:outline-hidden focus:ring-2 focus:ring-[#5B8C5A]/20 focus:border-[#5B8C5A] bg-white"
-                  >
-                    <option value="female">Female</option>
-                    <option value="male">Male</option>
-                    <option value="other">Other</option>
-                    <option value="prefer_not_to_say">Prefer not to say</option>
-                  </select>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-xs font-semibold text-[#39393A] mb-1">Date of Birth</label>
+                    <input
+                      type="date"
+                      required
+                      value={dob}
+                      onChange={e => setDob(e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-[#D6D6D6] focus:outline-hidden focus:ring-2 focus:ring-[#5B8C5A]/20 focus:border-[#5B8C5A]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-[#39393A] mb-1">Gender</label>
+                    <select
+                      value={gender}
+                      onChange={e => setGender(e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-[#D6D6D6] focus:outline-hidden focus:ring-2 focus:ring-[#5B8C5A]/20 focus:border-[#5B8C5A] bg-white"
+                    >
+                      <option value="female">Female</option>
+                      <option value="male">Male</option>
+                      <option value="other">Other</option>
+                      <option value="prefer_not_to_say">Prefer not to say</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
+              </>
             )}
 
             <div>
@@ -275,6 +223,7 @@ export const AuthModal: React.FC = () => {
                 <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
                 <input
                   type="password"
+                  required
                   placeholder="••••••••"
                   value={password}
                   onChange={e => setPassword(e.target.value)}

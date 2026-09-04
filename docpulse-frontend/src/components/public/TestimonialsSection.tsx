@@ -38,9 +38,10 @@ const clinicFaqs: FaqItem[] = [
     answer: 'Zahid Clinic in Ramgarh Mughalpura Lahore is open daily from 4:00 PM to 12:00 AM for in-person evaluations. Fee is Rs. 1,200 PKR.',
     category: 'Clinic Visits'
   },
-  {
+    {
     question: 'What payment methods are supported for Pakistani patients?',
-    answer: 'We support all major Pakistani digital payment channels'
+    answer: 'We support all major Pakistani digital payment channels, including Easypaisa, JazzCash, UPaisa, and major debit/credit cards.',
+    category: 'Payments'
   }
 ];
 
