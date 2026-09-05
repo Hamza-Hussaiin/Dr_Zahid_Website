@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
-import { users, patientProfiles } from '../db/schema';
+import { users, patientProfiles, doctorProfiles } from '../db/schema';
 import { generateId } from '../utils/ids';
 import { hashPassword, comparePassword } from '../utils/hash';
 import { signToken } from '../utils/jwt';
@@ -88,4 +88,32 @@ export const me = asyncHandler(async (req: Request, res: Response) => {
   }
 
   return res.json({ success: true, user: serializeUser(userRow) });
+});
+const updateAvatarSchema = z.object({
+  avatarUrl: z.string().min(1).max(2000),
+});
+
+export const updateMyAvatar = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ success: false, message: 'Not authenticated.' });
+  }
+  const parsed = updateAvatarSchema.parse(req.body);
+
+  const [updatedUser] = await db
+    .update(users)
+    .set({ avatar: parsed.avatarUrl, updatedAt: new Date() })
+    .where(eq(users.id, req.user.id))
+    .returning();
+
+  // Keep the doctor's public-facing profile photo in sync too, since
+  // patients see doctorProfiles.avatar (not users.avatar) on the public
+  // doctor directory and detail pages.
+  if (req.user.role === 'doctor' || req.user.role === 'admin_doctor' || req.user.role === 'super_admin') {
+    await db
+      .update(doctorProfiles)
+      .set({ avatar: parsed.avatarUrl, updatedAt: new Date() })
+      .where(eq(doctorProfiles.userId, req.user.id));
+  }
+
+  return res.json({ success: true, user: serializeUser(updatedUser) });
 });

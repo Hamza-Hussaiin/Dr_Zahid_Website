@@ -21,6 +21,7 @@ export type AppView =
   | 'doctor-dashboard'
   | 'doctor-slots'
   | 'doctor-profile-edit'
+  | 'doctor-management'
   | 'admin-dashboard'
   | 'booking'
   | 'profile-settings';
@@ -189,13 +190,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const startBookingWithDoctor = (doctorId?: string) => {
+    const startBookingWithDoctor = (doctorId?: string) => {
     if (!user) {
       openAuthModal('login', 'patient');
       addToast({
         type: 'info',
         title: 'Sign In Required',
         message: 'Please sign in or register as a patient to reserve an appointment slot.'
+      });
+      return;
+    }
+    // Doctor and admin accounts manage appointments through their own
+    // dashboards - booking as if they were a patient isn't a real workflow
+    // for this clinic, so it's blocked centrally here regardless of which
+    // button or link triggered it.
+    if (user.role === 'doctor' || user.role === 'admin_doctor' || user.role === 'super_admin') {
+      addToast({
+        type: 'info',
+        title: 'Not Available for Staff Accounts',
+        message: 'Doctor and admin accounts manage appointments from their dashboard, not by booking as a patient.'
       });
       return;
     }

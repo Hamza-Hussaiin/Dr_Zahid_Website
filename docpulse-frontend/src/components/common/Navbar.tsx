@@ -67,12 +67,14 @@ export const Navbar: React.FC = () => {
           </div>
           <div className="flex items-center gap-3 text-stone-300 text-[11px]">
             <span className="hidden sm:inline">Mughalpura, Lahore</span>
-            <button
-              onClick={() => startBookingWithDoctor()}
-              className="text-[#E6E6E6] bg-[#5B8C5A] hover:bg-[#4A7349] font-medium px-2.5 py-0.5 rounded transition-colors cursor-pointer"
-            >
-              Book Consultation &rarr;
-            </button>
+                        {!isDoctor && !isAdminDoctor && (
+              <button
+                onClick={() => startBookingWithDoctor()}
+                className="text-[#E6E6E6] bg-[#5B8C5A] hover:bg-[#4A7349] font-medium px-2.5 py-0.5 rounded transition-colors cursor-pointer"
+              >
+                Book Consultation &rarr;
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -253,10 +255,10 @@ export const Navbar: React.FC = () => {
                       </button>
                     )}
 
-                    <button
+                                       <button
                       id="dropdown-profile-btn"
                       onClick={() => {
-                        handleNavClick('profile-settings');
+                        handleNavClick(isDoctor || isAdminDoctor ? 'doctor-profile-edit' : 'profile-settings');
                         setIsUserMenuOpen(false);
                       }}
                       className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-[#39393A] hover:bg-[#E6E6E6] text-left transition-colors cursor-pointer"
@@ -322,18 +324,20 @@ export const Navbar: React.FC = () => {
               </button>
             )}
 
-            <div className="pt-2">
-              <button
-                onClick={() => {
-                  startBookingWithDoctor();
-                  setIsMobileMenuOpen(false);
-                }}
-                className="w-full bg-[#5B8C5A] text-white text-sm font-semibold py-2.5 rounded-md flex items-center justify-center gap-2 shadow-xs"
-              >
-                <Calendar className="w-4 h-4" />
-                <span>Book Appointment</span>
-              </button>
-            </div>
+                        {!isDoctor && !isAdminDoctor && (
+              <div className="pt-2">
+                <button
+                  onClick={() => {
+                    startBookingWithDoctor();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full bg-[#5B8C5A] text-white text-sm font-semibold py-2.5 rounded-md flex items-center justify-center gap-2 shadow-xs"
+                >
+                  <Calendar className="w-4 h-4" />
+                  <span>Book Appointment</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

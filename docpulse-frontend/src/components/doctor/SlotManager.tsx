@@ -3,20 +3,29 @@ import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
 import { TimeSlot } from '../../types';
 import { api } from '../../services/api';
-import { 
-  Calendar, 
-  Clock, 
-  Plus, 
-  Trash2, 
-  CheckCircle2, 
-  XCircle, 
-  Lock, 
-  Unlock, 
-  ArrowLeft, 
-  Sparkles,
-  RefreshCw,
-  Layers
+import {
+  Calendar,
+  Clock,
+  Plus,
+  Trash2,
+  Lock,
+  Unlock,
+  ArrowLeft,
+  Sparkles
 } from 'lucide-react';
+
+// Converts a native <input type="time"> value ("14:30") into the
+// display format used everywhere else in the app ("02:30 PM"), so newly
+// created slots look identical to existing ones in bookings, dashboards, etc.
+function to12Hour(value: string): string {
+  if (!value) return '';
+  const [hStr, mStr] = value.split(':');
+  let h = parseInt(hStr, 10);
+  const period = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  if (h === 0) h = 12;
+  return `${String(h).padStart(2, '0')}:${mStr} ${period}`;
+}
 
 export const SlotManager: React.FC = () => {
   const { user, doctorProfile } = useAuth();
@@ -25,16 +34,20 @@ export const SlotManager: React.FC = () => {
   const [slots, setSlots] = useState<TimeSlot[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [filterStatus, setFilterStatus] = useState<'all' | 'available' | 'booked' | 'blocked'>('all');
-  
-  // New Slot Form
-  const [newStartTime, setNewStartTime] = useState('09:00 AM');
-  const [newEndTime, setNewEndTime] = useState('09:30 AM');
+
+  // New Slot Form - native time pickers (24-hour values), converted to
+  // "hh:mm AM/PM" on save to match the format used across the rest of the app.
+  const [newStartTime, setNewStartTime] = useState('09:00');
+  const [newEndTime, setNewEndTime] = useState('09:30');
   const [isRecurring, setIsRecurring] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const docId = doctorProfile?.id || user?.id || 'doc_1';
+  const docId = doctorProfile?.id;
 
   const loadDoctorSlots = async () => {
+    if (!docId) return;
+    setIsLoading(true);
     try {
       const res = await api.getSlots(docId);
       if (res.success && res.slots) {
@@ -43,35 +56,49 @@ export const SlotManager: React.FC = () => {
     } catch (e) {
       console.error(e);
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
     loadDoctorSlots();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [docId]);
 
   const handleAddSlot = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!docId) return;
+
+    if (newEndTime <= newStartTime) {
+      addToast({ type: 'error', title: 'Invalid Time Range', message: 'End time must be after start time.' });
+      return;
+    }
+
     setIsCreating(true);
     try {
       const res = await api.createSlot({
         doctorId: docId,
         date: selectedDate,
-        startTime: newStartTime,
-        endTime: newEndTime,
+        startTime: to12Hour(newStartTime),
+        endTime: to12Hour(newEndTime),
         status: 'available',
         isRecurring
       });
 
-      if (res.success && res.slot) {
-        setSlots(prev => [...prev, res.slot]);
+      if (res.success && res.slots) {
+        setSlots(prev => [...prev, ...res.slots.filter(s => !prev.some(p => p.id === s.id))]);
         addToast({
           type: 'success',
-          title: 'Slot Created',
-          message: `Added ${selectedDate} (${newStartTime} - ${newEndTime}) to your schedule.`
+          title: 'Slot Saved',
+          message: isRecurring
+            ? `This time slot is now saved every week for the next 8 weeks, starting ${selectedDate}.`
+            : `Added ${selectedDate} (${to12Hour(newStartTime)} - ${to12Hour(newEndTime)}) to your schedule.`
         });
+      } else if (!res.success) {
+        addToast({ type: 'error', title: 'Could Not Add Slot', message: (res as any).message || 'This slot may already exist.' });
       }
     } catch (e) {
       console.error(e);
+      addToast({ type: 'error', title: 'Error', message: 'Could not save the slot. Please try again.' });
     }
     setIsCreating(false);
   };
@@ -111,19 +138,21 @@ export const SlotManager: React.FC = () => {
           title: 'Slot Removed',
           message: 'Calendar slot deleted.'
         });
+      } else {
+        addToast({ type: 'error', title: 'Could Not Delete', message: (res as any).message || 'This slot cannot be removed.' });
       }
     } catch (e) {
       console.error(e);
     }
   };
 
-  // Quick Batch Generator (Creates 4 slots for the day)
   const handleGenerateStandardSlots = async () => {
+    if (!docId) return;
     const defaultTimes = [
-      { start: '09:00 AM', end: '09:30 AM' },
-      { start: '10:00 AM', end: '10:30 AM' },
-      { start: '02:00 PM', end: '02:30 PM' },
-      { start: '03:30 PM', end: '04:00 PM' }
+      { start: '09:00', end: '09:30' },
+      { start: '10:00', end: '10:30' },
+      { start: '14:00', end: '14:30' },
+      { start: '15:30', end: '16:00' }
     ];
 
     let count = 0;
@@ -131,13 +160,13 @@ export const SlotManager: React.FC = () => {
       const res = await api.createSlot({
         doctorId: docId,
         date: selectedDate,
-        startTime: t.start,
-        endTime: t.end,
+        startTime: to12Hour(t.start),
+        endTime: to12Hour(t.end),
         status: 'available',
         isRecurring: false
       });
-      if (res.success && res.slot) {
-        setSlots(prev => [...prev, res.slot]);
+      if (res.success && res.slots) {
+        setSlots(prev => [...prev, ...res.slots.filter(s => !prev.some(p => p.id === s.id))]);
         count++;
       }
     }
@@ -149,17 +178,27 @@ export const SlotManager: React.FC = () => {
     });
   };
 
-  const filteredSlots = slots.filter(s => {
-    const matchesDate = s.date === selectedDate;
-    const matchesStatus = filterStatus === 'all' || s.status === filterStatus;
-    return matchesDate && matchesStatus;
-  });
+  const filteredSlots = slots
+    .filter(s => {
+      const matchesDate = s.date === selectedDate;
+      const matchesStatus = filterStatus === 'all' || s.status === filterStatus;
+      return matchesDate && matchesStatus;
+    })
+    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+  if (!doctorProfile) {
+    return (
+      <div className="py-16 text-center bg-slate-50 min-h-screen">
+        <Clock className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+        <p className="text-sm text-slate-500">Loading your doctor profile...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="py-8 bg-slate-50 min-h-screen">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        
-        {/* Back navigation */}
+
         <button
           onClick={() => setCurrentView('doctor-dashboard')}
           className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-teal-700 transition-colors cursor-pointer"
@@ -168,7 +207,6 @@ export const SlotManager: React.FC = () => {
           <span>Back to Doctor Dashboard</span>
         </button>
 
-        {/* Title */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -178,7 +216,7 @@ export const SlotManager: React.FC = () => {
               </h1>
             </div>
             <p className="text-xs text-slate-500 mt-1">
-              Define your availability windows for patient online and in-clinic bookings.
+              Set your availability for each day. Slots stay exactly as you leave them until you change them again.
             </p>
           </div>
 
@@ -191,19 +229,17 @@ export const SlotManager: React.FC = () => {
           </button>
         </div>
 
-        {/* Main Grid: Add slot form + Slots display */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
-          {/* Left: Add New Slot Form */}
+
           <div className="lg:col-span-4 bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
               <Plus className="w-4 h-4 text-teal-600" />
-              <span>Add Single Slot</span>
+              <span>Add a Time Slot</span>
             </h3>
 
             <form onSubmit={handleAddSlot} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Target Date</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Date</label>
                 <input
                   type="date"
                   required
@@ -217,9 +253,8 @@ export const SlotManager: React.FC = () => {
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Start Time</label>
                   <input
-                    type="text"
+                    type="time"
                     required
-                    placeholder="09:00 AM"
                     value={newStartTime}
                     onChange={e => setNewStartTime(e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50"
@@ -228,9 +263,8 @@ export const SlotManager: React.FC = () => {
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">End Time</label>
                   <input
-                    type="text"
+                    type="time"
                     required
-                    placeholder="09:30 AM"
                     value={newEndTime}
                     onChange={e => setNewEndTime(e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50"
@@ -247,31 +281,30 @@ export const SlotManager: React.FC = () => {
                   className="rounded text-teal-600"
                 />
                 <label htmlFor="recurring-slot" className="text-xs text-slate-600 cursor-pointer">
-                  Weekly recurring availability
+                  Repeat this same time every week (next 8 weeks)
                 </label>
               </div>
 
               <button
                 type="submit"
                 disabled={isCreating}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2.5 rounded-xl shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2.5 rounded-xl shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
               >
                 <Plus className="w-3.5 h-3.5 text-teal-400" />
-                <span>{isCreating ? 'Adding...' : 'Add Slot to Schedule'}</span>
+                <span>{isCreating ? 'Saving...' : 'Save Slot to Schedule'}</span>
               </button>
             </form>
 
             <div className="pt-4 border-t border-slate-100 text-[11px] text-slate-500 space-y-1">
               <p>• <strong>Available:</strong> Open for patients to book</p>
               <p>• <strong>Booked:</strong> Locked to an active patient case</p>
-              <p>• <strong>Unavailable:</strong> Blocked for administrative time</p>
+              <p>• <strong>Blocked:</strong> Hidden from patients, reserved for admin time</p>
+              <p className="pt-1">Every slot you save is permanent — it stays on your calendar for that day until you delete or block it yourself.</p>
             </div>
           </div>
 
-          {/* Right: Slots List for Selected Date */}
           <div className="lg:col-span-8 bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-5">
-            
-            {/* Header & Filter Controls */}
+
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
                 <h3 className="text-sm font-bold text-slate-900">
@@ -308,8 +341,9 @@ export const SlotManager: React.FC = () => {
               </div>
             </div>
 
-            {/* Slots Grid */}
-            {filteredSlots.length === 0 ? (
+            {isLoading ? (
+              <div className="text-center py-12 text-xs text-slate-400">Loading your schedule...</div>
+            ) : filteredSlots.length === 0 ? (
               <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-200">
                 <Clock className="w-10 h-10 text-slate-300 mx-auto mb-2" />
                 <h4 className="text-xs font-bold text-slate-700">No slots defined for this date</h4>
@@ -342,7 +376,6 @@ export const SlotManager: React.FC = () => {
                       </span>
                     </div>
 
-                    {/* Actions */}
                     <div className="flex items-center gap-1">
                       {slot.status !== 'booked' && (
                         <button

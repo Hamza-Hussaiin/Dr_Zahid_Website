@@ -1,3 +1,4 @@
+import { AvatarUploader } from '../common/AvatarUploader';
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
@@ -97,6 +98,10 @@ export const DoctorProfileEditor: React.FC = () => {
                 Patients will see this information when searching specialists and booking consultation slots.
               </p>
             </div>
+          </div>
+
+          <div className="pb-6 border-b border-slate-100">
+            <AvatarUploader currentAvatarUrl={doctorProfile?.avatar} displayName={doctorProfile?.name} />
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

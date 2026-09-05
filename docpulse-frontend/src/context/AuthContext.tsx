@@ -4,17 +4,20 @@ import { api } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
-  currentDoctorProfile: DoctorProfile | null;
+  doctorProfile: DoctorProfile | null;
   patientProfile: PatientProfile | null;
   isAuthenticated: boolean;
   isVisitor: boolean;
   isPatient: boolean;
   isDoctor: boolean;
   isAdminDoctor: boolean;
+  isSuperAdmin: boolean;
   login: (email?: string, password?: string) => Promise<{ success: boolean; message?: string; user?: User }>;
   register: (data: any) => Promise<{ success: boolean; message?: string; user?: User }>;
   logout: () => void;
   updateCurrentUser: (userData: Partial<User>) => void;
+  updateDoctorProfile: (profile: DoctorProfile) => void;
+  updatePatientProfile: (profile: PatientProfile) => void;
   refreshProfiles: () => Promise<void>;
 }
 
@@ -26,7 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return saved ? JSON.parse(saved) : null;
   });
 
-  const [currentDoctorProfile, setCurrentDoctorProfile] = useState<DoctorProfile | null>(null);
+  const [doctorProfile, setDoctorProfile] = useState<DoctorProfile | null>(null);
   const [patientProfile, setPatientProfile] = useState<PatientProfile | null>(null);
 
   // Validate token on mount
@@ -50,16 +53,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshProfiles = async () => {
     if (!user) {
-      setCurrentDoctorProfile(null);
+      setDoctorProfile(null);
       setPatientProfile(null);
       return;
     }
 
-    if (user.role === 'doctor' || user.role === 'admin_doctor') {
+    if (user.role === 'doctor' || user.role === 'admin_doctor' || user.role === 'super_admin') {
       const res = await api.getDoctors(true);
       if (res.success) {
         const found = res.doctors.find(d => d.userId === user.id);
-        setCurrentDoctorProfile(found || null);
+        setDoctorProfile(found || null);
       }
     } else if (user.role === 'patient') {
       const res = await api.getPatientProfile(user.id);
@@ -71,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     refreshProfiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const login = async (email?: string, password?: string) => {
@@ -103,7 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setUser(null);
-    setCurrentDoctorProfile(null);
+    setDoctorProfile(null);
     setPatientProfile(null);
     localStorage.removeItem('zahid_clinic_user');
     localStorage.removeItem('zahid_clinic_token');
@@ -117,26 +121,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('zahid_clinic_user', JSON.stringify(updated));
   };
 
+  // Local-state setters, called after a successful save so the UI reflects
+  // the change immediately without waiting for the next background refresh.
+  const updateDoctorProfile = (profile: DoctorProfile) => {
+    setDoctorProfile(profile);
+  };
+
+  const updatePatientProfile = (profile: PatientProfile) => {
+    setPatientProfile(profile);
+  };
+
   const isVisitor = !user;
   const isPatient = user?.role === 'patient';
   const isDoctor = user?.role === 'doctor';
+  const isSuperAdmin = user?.role === 'super_admin';
   const isAdminDoctor = user?.role === 'admin_doctor' || user?.role === 'super_admin';
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        currentDoctorProfile,
+        doctorProfile,
         patientProfile,
         isAuthenticated: !!user,
         isVisitor,
         isPatient,
         isDoctor,
         isAdminDoctor,
+        isSuperAdmin,
         login,
         register,
         logout,
         updateCurrentUser,
+        updateDoctorProfile,
+        updatePatientProfile,
         refreshProfiles
       }}
     >

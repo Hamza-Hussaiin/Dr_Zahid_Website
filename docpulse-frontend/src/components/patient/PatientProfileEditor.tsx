@@ -1,21 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
 import { api } from '../../services/api';
-import { 
-  User, 
-  Heart, 
-  ShieldCheck, 
-  Phone, 
-  FileText, 
-  Save, 
+import { AvatarUploader } from '../common/AvatarUploader';
+import {
+  User,
+  Heart,
+  ShieldCheck,
+  Phone,
+  FileText,
+  Save,
   ArrowLeft,
   CheckCircle2
 } from 'lucide-react';
 
 export const PatientProfileEditor: React.FC = () => {
-  const { user, patientProfile, updatePatientProfile } = useAuth();
+  const { user, patientProfile, updatePatientProfile, isDoctor, isAdminDoctor } = useAuth();
   const { setCurrentView, addToast } = useApp();
+
+  // This screen is for the PATIENT medical intake profile only. A doctor or
+  // admin account landing here (e.g. via an old link) gets sent to their own
+  // doctor profile editor instead - they should never fill in patient
+  // medical history fields for themselves.
+  useEffect(() => {
+    if (isDoctor || isAdminDoctor) {
+      setCurrentView('doctor-profile-edit');
+    }
+  }, [isDoctor, isAdminDoctor, setCurrentView]);
 
   const [formData, setFormData] = useState({
     dob: patientProfile?.dob || '1995-06-14',
@@ -31,7 +42,9 @@ export const PatientProfileEditor: React.FC = () => {
     insurancePolicyNumber: patientProfile?.insurancePolicyNumber || 'BCBS-99418290-CA'
   });
 
-  const [isSaving, setIsSaving] = useState(false);
+  if (isDoctor || isAdminDoctor) {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,6 +96,10 @@ export const PatientProfileEditor: React.FC = () => {
                 Keep your health metrics, allergies, and emergency contacts up to date for specialist visits.
               </p>
             </div>
+          </div>
+
+          <div className="pb-6 border-b border-slate-100">
+            <AvatarUploader currentAvatarUrl={user?.avatar} displayName={user?.name} />
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

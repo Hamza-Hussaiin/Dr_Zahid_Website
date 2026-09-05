@@ -94,6 +94,43 @@ export const api = {
     });
   },
 
+  async uploadAvatar(file: File): Promise<{ success: boolean; url: string; message?: string }> {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const base64 = reader.result as string;
+          const res = await fetch(`${API_BASE}/api/upload/avatar`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+              fileName: file.name,
+              fileType: file.type,
+              fileBase64: base64
+            })
+          });
+          const json = await res.json();
+          resolve(json);
+        } catch (err: any) {
+          resolve({ success: false, url: '', message: err.message || 'Upload failed' });
+        }
+      };
+      reader.onerror = () => {
+        resolve({ success: false, url: '', message: 'Failed to read file from disk.' });
+      };
+      reader.readAsDataURL(file);
+    });
+  },
+
+  async updateMyAvatar(avatarUrl: string): Promise<{ success: boolean; user?: User; message?: string }> {
+    const res = await fetch(`${API_BASE}/api/auth/me/avatar`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ avatarUrl })
+    });
+    return res.json();
+  },
+
   // Real-Time Server-Sent Events (SSE) Stream Listener
   subscribeEvents(userId: string, onEvent: (event: { type: string; payload: any; timestamp: string }) => void): () => void {
     const token = localStorage.getItem('zahid_clinic_token') || '';

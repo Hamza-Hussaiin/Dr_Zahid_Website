@@ -32,7 +32,8 @@ export const AdminDashboard: React.FC = () => {
     clinicInfo, 
     updateClinicInfo, 
     addToast,
-    refreshAllData 
+    refreshAllData,
+    setCurrentView
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'appointments' | 'services' | 'clinic_info'>('overview');
@@ -131,21 +132,7 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleExportData = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ appointments, doctors, clinicServices }, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `zahid_clinic_export_${new Date().toISOString().split('T')[0]}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
 
-    addToast({
-      type: 'success',
-      title: 'Export Generated',
-      message: 'Platform telemetry & appointments exported to JSON.'
-    });
-  };
 
   return (
     <div className="py-8 bg-slate-50 min-h-screen">
@@ -174,11 +161,11 @@ export const AdminDashboard: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <button
-              onClick={handleExportData}
-              className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer"
+              onClick={() => setCurrentView('doctor-management')}
+              className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Export Audit Data</span>
+              <Stethoscope className="w-3.5 h-3.5" />
+              <span>Manage Doctors</span>
             </button>
           </div>
         </div>

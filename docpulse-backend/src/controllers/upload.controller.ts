@@ -65,3 +65,41 @@ export const uploadFile = asyncHandler(async (req: Request, res: Response) => {
     type: parsed.fileType,
   });
 });
+const AVATAR_MAX_SIZE_BYTES = 3 * 1024 * 1024;
+
+export const uploadAvatar = asyncHandler(async (req: Request, res: Response) => {
+  const parsed = uploadSchema.parse(req.body);
+
+  if (!parsed.fileType.startsWith('image/')) {
+    throw new ApiError(400, 'Profile pictures must be an image file.');
+  }
+
+  const commaIndex = parsed.fileBase64.indexOf(',');
+  const base64Data = commaIndex >= 0 ? parsed.fileBase64.slice(commaIndex + 1) : parsed.fileBase64;
+  const buffer = Buffer.from(base64Data, 'base64');
+
+  if (buffer.length > AVATAR_MAX_SIZE_BYTES) {
+    throw new ApiError(400, 'Profile picture is too large. Maximum size is 3 MB.');
+  }
+
+  // Unlike medical attachments, avatars are stored as plain public images -
+  // they need to render on public pages (doctor directory, etc.) without a
+  // signed URL or an auth check.
+  const uploadResult = await new Promise<any>((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: 'image',
+        folder: 'docpulse/avatars',
+        type: 'upload',
+        transformation: [{ width: 500, height: 500, crop: 'fill', gravity: 'face' }],
+      },
+      (error, result) => (error ? reject(error) : resolve(result))
+    );
+    stream.end(buffer);
+  });
+
+  return res.status(201).json({
+    success: true,
+    url: uploadResult.secure_url,
+  });
+});
