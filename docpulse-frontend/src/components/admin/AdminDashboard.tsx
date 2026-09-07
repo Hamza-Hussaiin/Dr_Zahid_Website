@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useRef } from 'react';
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
@@ -53,6 +54,22 @@ export const AdminDashboard: React.FC = () => {
     emergencyContact: clinicInfo?.emergencyContact || '+92 321 7654321',
     mission: clinicInfo?.mission || ''
   });
+
+    const hasSyncedClinicInfo = useRef(false);
+  useEffect(() => {
+    if (clinicInfo && !hasSyncedClinicInfo.current) {
+      setInfoForm({
+        name: clinicInfo.name || '',
+        tagline: clinicInfo.tagline || '',
+        phone: clinicInfo.phone || '',
+        email: clinicInfo.email || '',
+        address: clinicInfo.address || '',
+        emergencyContact: clinicInfo.emergencyContact || '',
+        mission: clinicInfo.mission || ''
+      });
+      hasSyncedClinicInfo.current = true;
+    }
+  }, [clinicInfo]);
 
   // Services Edit / Add
   const [showServiceModal, setShowServiceModal] = useState(false);

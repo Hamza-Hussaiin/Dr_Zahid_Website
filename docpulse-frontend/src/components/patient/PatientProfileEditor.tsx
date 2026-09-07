@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useRef } from 'react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
@@ -41,6 +42,26 @@ export const PatientProfileEditor: React.FC = () => {
     insuranceProvider: patientProfile?.insuranceProvider || 'Blue Cross Blue Shield Gold PPO',
     insurancePolicyNumber: patientProfile?.insurancePolicyNumber || 'BCBS-99418290-CA'
   });
+
+    const hasSyncedProfile = useRef(false);
+  useEffect(() => {
+    if (patientProfile && !hasSyncedProfile.current) {
+      setFormData({
+        dob: patientProfile.dob || '',
+        age: patientProfile.age || 0,
+        gender: patientProfile.gender || 'female',
+        bloodGroup: patientProfile.bloodGroup || '',
+        allergies: patientProfile.allergies || '',
+        chronicConditions: patientProfile.chronicConditions || '',
+        currentMedications: patientProfile.currentMedications || '',
+        emergencyContactName: patientProfile.emergencyContactName || '',
+        emergencyContactPhone: patientProfile.emergencyContactPhone || '',
+        insuranceProvider: patientProfile.insuranceProvider || '',
+        insurancePolicyNumber: patientProfile.insurancePolicyNumber || ''
+      });
+      hasSyncedProfile.current = true;
+    }
+  }, [patientProfile]);
 
   if (isDoctor || isAdminDoctor) {
     return null;

@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useRef } from 'react';
 import { AvatarUploader } from '../common/AvatarUploader';
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
@@ -33,6 +34,25 @@ export const DoctorProfileEditor: React.FC = () => {
     qualifications: doctorProfile?.qualifications.join(', ') || 'MBBS, FCPS Internal Medicine',
     servicesOffered: doctorProfile?.servicesOffered?.join(', ') || 'Medical Consultation, Chat Consultation, Home Visit'
   });
+
+    const hasSyncedProfile = useRef(false);
+  useEffect(() => {
+    if (doctorProfile && !hasSyncedProfile.current) {
+      setFormData({
+        name: doctorProfile.name || user?.name || '',
+        title: doctorProfile.title || '',
+        specialization: doctorProfile.specialization || '',
+        bio: doctorProfile.bio || '',
+        consultationFee: doctorProfile.consultationFee || 0,
+        experienceYears: doctorProfile.experienceYears || 0,
+        languages: doctorProfile.languages?.join(', ') || '',
+        clinicAddress: doctorProfile.clinicAddress || '',
+        qualifications: doctorProfile.qualifications?.join(', ') || '',
+        servicesOffered: doctorProfile.servicesOffered?.join(', ') || ''
+      });
+      hasSyncedProfile.current = true;
+    }
+  }, [doctorProfile, user]);
 
   const [isSaving, setIsSaving] = useState(false);
 
