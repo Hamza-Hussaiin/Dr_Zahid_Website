@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AvatarUploader } from '../common/AvatarUploader';
-import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
 import { api } from '../../services/api';
