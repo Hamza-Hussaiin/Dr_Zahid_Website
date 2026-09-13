@@ -12,6 +12,7 @@ import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
 import { ToastContainer } from './components/common/ToastContainer';
 import { AuthModal } from './components/auth/AuthModal';
+import { ResetPasswordPage } from './components/auth/ResetPasswordPage';
 
 // Public Components
 import { HeroSection } from './components/public/HeroSection';
@@ -84,6 +85,8 @@ const MainContent: React.FC = () => {
         );
       case 'contact':
         return <ContactSection />;
+      case 'reset-password':
+        return <ResetPasswordPage />;
       default:
         return (
           <>

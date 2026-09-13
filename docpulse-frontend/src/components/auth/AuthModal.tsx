@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
-import { X, User, Lock, Mail, ArrowRight } from 'lucide-react';
+import { api } from '../../services/api';
+import { X, User, Lock, Mail, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export const AuthModal: React.FC = () => {
   const { login, register } = useAuth();
@@ -13,7 +14,7 @@ export const AuthModal: React.FC = () => {
     addToast
   } = useApp();
 
-  const [tab, setTab] = useState<'login' | 'register'>('login');
+  const [tab, setTab] = useState<'login' | 'register' | 'forgot'>('login');
 
   // Form states
   const [name, setName] = useState('');
@@ -24,10 +25,12 @@ export const AuthModal: React.FC = () => {
   const [gender, setGender] = useState('female');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [forgotEmailSent, setForgotEmailSent] = useState(false);
 
   useEffect(() => {
     setTab(authModalTab);
     setErrorMsg('');
+    setForgotEmailSent(false);
   }, [authModalTab, isAuthModalOpen]);
 
   if (!isAuthModalOpen) return null;
@@ -61,7 +64,7 @@ export const AuthModal: React.FC = () => {
       } else {
         setErrorMsg(res.message || 'Login failed. Please check your credentials.');
       }
-    } else {
+    } else if (tab === 'register') {
       if (!name.trim()) {
         setErrorMsg('Please enter your full legal name.');
         setIsLoading(false);
@@ -88,9 +91,30 @@ export const AuthModal: React.FC = () => {
       } else {
         setErrorMsg(res.message || 'Registration failed.');
       }
+    } else if (tab === 'forgot') {
+      if (!email.trim()) {
+        setErrorMsg('Please enter your email address.');
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const res = await api.forgotPassword(email);
+        if (res.success) {
+          setForgotEmailSent(true);
+        } else {
+          setErrorMsg(res.message || 'Something went wrong. Please try again.');
+        }
+      } catch (err: any) {
+        setErrorMsg(err.message || 'Could not reach the server. Please try again.');
+      }
     }
     setIsLoading(false);
   };
+
+  const headerSubtitle =
+    tab === 'login' ? 'Sign in to access your consultations and health records.' :
+    tab === 'register' ? 'Create an account to book specialist appointments.' :
+    'Enter your email to receive a password reset link.';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs animate-in fade-in duration-200">
@@ -111,136 +135,184 @@ export const AuthModal: React.FC = () => {
             <span className="font-bold text-lg text-white">Zahid's Clinic</span>
           </div>
           <p className="text-xs text-stone-300">
-            {tab === 'login' ? 'Sign in to access your consultations and health records.' : 'Create an account to book specialist appointments.'}
+            {headerSubtitle}
           </p>
 
-          {/* Tab Switcher */}
-          <div className="flex bg-[#2A2A2B] rounded-xl p-1 mt-4 border border-stone-600">
-            <button
-              onClick={() => { setTab('login'); setErrorMsg(''); }}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                tab === 'login' ? 'bg-[#5B8C5A] text-white shadow-xs' : 'text-stone-300 hover:text-white'
-              }`}
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => { setTab('register'); setErrorMsg(''); }}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                tab === 'register' ? 'bg-[#5B8C5A] text-white shadow-xs' : 'text-stone-300 hover:text-white'
-              }`}
-            >
-              Create Account
-            </button>
-          </div>
+          {/* Tab Switcher - hidden while on the "forgot password" screen */}
+          {tab !== 'forgot' && (
+            <div className="flex bg-[#2A2A2B] rounded-xl p-1 mt-4 border border-stone-600">
+              <button
+                onClick={() => { setTab('login'); setErrorMsg(''); }}
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  tab === 'login' ? 'bg-[#5B8C5A] text-white shadow-xs' : 'text-stone-300 hover:text-white'
+                }`}
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => { setTab('register'); setErrorMsg(''); }}
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  tab === 'register' ? 'bg-[#5B8C5A] text-white shadow-xs' : 'text-stone-300 hover:text-white'
+                }`}
+              >
+                Create Account
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Body Content */}
         <div className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-3.5">
-            {errorMsg && (
-              <div className="p-3 text-xs bg-[#A37774]/15 text-[#A37774] rounded-lg border border-[#A37774]/30 font-medium">
-                {errorMsg}
-              </div>
-            )}
 
-            {tab === 'register' && (
+          {tab === 'forgot' && forgotEmailSent ? (
+            <div className="text-center py-4">
+              <CheckCircle2 className="w-10 h-10 text-[#5B8C5A] mx-auto mb-3" />
+              <h3 className="text-sm font-bold text-[#39393A]">Check Your Email</h3>
+              <p className="text-xs text-slate-500 mt-2">
+                If an account exists for <strong>{email}</strong>, a password reset link has been sent. It'll expire in 1 hour.
+              </p>
+              <button
+                onClick={() => { setTab('login'); setErrorMsg(''); setForgotEmailSent(false); }}
+                className="mt-5 text-xs font-bold text-[#5B8C5A] hover:underline cursor-pointer"
+              >
+                Back to Sign In
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-3.5">
+              {errorMsg && (
+                <div className="p-3 text-xs bg-[#A37774]/15 text-[#A37774] rounded-lg border border-[#A37774]/30 font-medium">
+                  {errorMsg}
+                </div>
+              )}
+
+              {tab === 'register' && (
+                <div>
+                  <label className="block text-xs font-semibold text-[#39393A] mb-1">Full Name</label>
+                  <div className="relative">
+                    <User className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Ali Raza"
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-[#D6D6D6] focus:outline-hidden focus:ring-2 focus:ring-[#5B8C5A]/20 focus:border-[#5B8C5A]"
+                    />
+                  </div>
+                </div>
+              )}
+
               <div>
-                <label className="block text-xs font-semibold text-[#39393A] mb-1">Full Name</label>
+                <label className="block text-xs font-semibold text-[#39393A] mb-1">Email Address</label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+                  <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
                   <input
-                    type="text"
+                    type="email"
                     required
-                    placeholder="e.g. Ali Raza"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
+                    placeholder="name@example.com"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-[#D6D6D6] focus:outline-hidden focus:ring-2 focus:ring-[#5B8C5A]/20 focus:border-[#5B8C5A]"
                   />
                 </div>
               </div>
-            )}
 
-            <div>
-              <label className="block text-xs font-semibold text-[#39393A] mb-1">Email Address</label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
-                <input
-                  type="email"
-                  required
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-[#D6D6D6] focus:outline-hidden focus:ring-2 focus:ring-[#5B8C5A]/20 focus:border-[#5B8C5A]"
-                />
-              </div>
-            </div>
-
-            {tab === 'register' && (
-              <>
-                <div>
-                  <label className="block text-xs font-semibold text-[#39393A] mb-1">Phone Number</label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="0300-1234567"
-                    value={phone}
-                    onChange={e => setPhone(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-[#D6D6D6] focus:outline-hidden focus:ring-2 focus:ring-[#5B8C5A]/20 focus:border-[#5B8C5A]"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
+              {tab === 'register' && (
+                <>
                   <div>
-                    <label className="block text-xs font-semibold text-[#39393A] mb-1">Date of Birth</label>
+                    <label className="block text-xs font-semibold text-[#39393A] mb-1">Phone Number</label>
                     <input
-                      type="date"
+                      type="tel"
                       required
-                      value={dob}
-                      onChange={e => setDob(e.target.value)}
+                      placeholder="0300-1234567"
+                      value={phone}
+                      onChange={e => setPhone(e.target.value)}
                       className="w-full px-3 py-2 text-xs rounded-lg border border-[#D6D6D6] focus:outline-hidden focus:ring-2 focus:ring-[#5B8C5A]/20 focus:border-[#5B8C5A]"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-[#39393A] mb-1">Gender</label>
-                    <select
-                      value={gender}
-                      onChange={e => setGender(e.target.value)}
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-[#D6D6D6] focus:outline-hidden focus:ring-2 focus:ring-[#5B8C5A]/20 focus:border-[#5B8C5A] bg-white"
-                    >
-                      <option value="female">Female</option>
-                      <option value="male">Male</option>
-                      <option value="other">Other</option>
-                      <option value="prefer_not_to_say">Prefer not to say</option>
-                    </select>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-xs font-semibold text-[#39393A] mb-1">Date of Birth</label>
+                      <input
+                        type="date"
+                        required
+                        value={dob}
+                        onChange={e => setDob(e.target.value)}
+                        className="w-full px-3 py-2 text-xs rounded-lg border border-[#D6D6D6] focus:outline-hidden focus:ring-2 focus:ring-[#5B8C5A]/20 focus:border-[#5B8C5A]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-[#39393A] mb-1">Gender</label>
+                      <select
+                        value={gender}
+                        onChange={e => setGender(e.target.value)}
+                        className="w-full px-3 py-2 text-xs rounded-lg border border-[#D6D6D6] focus:outline-hidden focus:ring-2 focus:ring-[#5B8C5A]/20 focus:border-[#5B8C5A] bg-white"
+                      >
+                        <option value="female">Female</option>
+                        <option value="male">Male</option>
+                        <option value="other">Other</option>
+                        <option value="prefer_not_to_say">Prefer not to say</option>
+                      </select>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {tab !== 'forgot' && (
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-[#39393A]">Password</label>
+                    {tab === 'login' && (
+                      <button
+                        type="button"
+                        onClick={() => { setTab('forgot'); setErrorMsg(''); }}
+                        className="text-[11px] font-semibold text-[#5B8C5A] hover:underline cursor-pointer"
+                      >
+                        Forgot password?
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+                    <input
+                      type="password"
+                      required
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-[#D6D6D6] focus:outline-hidden focus:ring-2 focus:ring-[#5B8C5A]/20 focus:border-[#5B8C5A]"
+                    />
                   </div>
                 </div>
-              </>
-            )}
+              )}
 
-            <div>
-              <label className="block text-xs font-semibold text-[#39393A] mb-1">Password</label>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
-                <input
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-[#D6D6D6] focus:outline-hidden focus:ring-2 focus:ring-[#5B8C5A]/20 focus:border-[#5B8C5A]"
-                />
-              </div>
-            </div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full mt-2 bg-[#39393A] hover:bg-[#2A2A2B] text-white font-bold text-xs py-2.5 rounded-lg shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+              >
+                <span>
+                  {isLoading
+                    ? 'Processing...'
+                    : tab === 'login' ? 'Sign In'
+                    : tab === 'register' ? 'Complete Registration'
+                    : 'Send Reset Link'}
+                </span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full mt-2 bg-[#39393A] hover:bg-[#2A2A2B] text-white font-bold text-xs py-2.5 rounded-lg shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
-            >
-              <span>{isLoading ? 'Processing...' : tab === 'login' ? 'Sign In' : 'Complete Registration'}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </form>
+              {tab === 'forgot' && (
+                <button
+                  type="button"
+                  onClick={() => { setTab('login'); setErrorMsg(''); }}
+                  className="w-full text-center text-xs font-semibold text-slate-500 hover:text-[#39393A] cursor-pointer"
+                >
+                  Back to Sign In
+                </button>
+              )}
+            </form>
+          )}
 
           <p className="mt-4 text-center text-[11px] text-stone-500">
             By continuing, you agree to Zahid's Clinic Terms & Patient Privacy Guidelines.

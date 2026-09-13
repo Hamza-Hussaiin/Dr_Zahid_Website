@@ -27,3 +27,16 @@ export function doctorWelcomeEmail(doctorName: string, email: string, temporaryP
     `,
   };
 }
+
+export function passwordResetEmail(name: string, resetUrl: string) {
+  return {
+    subject: 'Reset your DocPulse password',
+    html: `
+      <p>Hi ${name},</p>
+      <p>We received a request to reset your DocPulse account password.</p>
+      <p><a href="${resetUrl}" style="display:inline-block;padding:10px 18px;background:#39393A;color:#ffffff;text-decoration:none;border-radius:6px;">Reset My Password</a></p>
+      <p>Or copy and paste this link into your browser:<br/>${resetUrl}</p>
+      <p>This link will expire in 1 hour. If you didn't request this, you can safely ignore this email — your password will not be changed.</p>
+    `,
+  };
+}

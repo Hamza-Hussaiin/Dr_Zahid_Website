@@ -18,6 +18,7 @@ export const env = {
     .filter(Boolean),
   jwtSecret: required('JWT_SECRET'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
   bootstrapAdmin: {
     name: process.env.BOOTSTRAP_ADMIN_NAME || 'Admin Doctor',
     email: process.env.BOOTSTRAP_ADMIN_EMAIL || 'admin@docpulse.local',

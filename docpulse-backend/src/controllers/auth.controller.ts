@@ -1,3 +1,6 @@
+import crypto from 'crypto';
+import { env } from '../config/env';
+import { sendEmail, passwordResetEmail } from '../services/email.service';
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
@@ -116,4 +119,79 @@ export const updateMyAvatar = asyncHandler(async (req: Request, res: Response) =
   }
 
   return res.json({ success: true, user: serializeUser(updatedUser) });
+});
+
+const forgotPasswordSchema = z.object({
+  email: z.string().email('A valid email is required.'),
+});
+
+const resetPasswordSchema = z.object({
+  token: z.string().min(10, 'Reset token is missing or invalid.'),
+  newPassword: z.string().min(6, 'Password must be at least 6 characters.'),
+});
+
+function hashToken(rawToken: string): string {
+  return crypto.createHash('sha256').update(rawToken).digest('hex');
+}
+
+export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
+  const parsed = forgotPasswordSchema.parse(req.body);
+  const email = parsed.email.toLowerCase();
+
+  const userRow = await db.query.users.findFirst({ where: eq(users.email, email) });
+
+  // Always respond the same way whether or not the account exists - this
+  // prevents someone from using this form to discover which emails are
+  // registered on the platform.
+  const genericResponse = {
+    success: true,
+    message: 'If an account exists with that email, a password reset link has been sent.',
+  };
+
+  if (!userRow || userRow.status === 'inactive') {
+    return res.json(genericResponse);
+  }
+
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  const tokenHash = hashToken(rawToken);
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+  await db
+    .update(users)
+    .set({ resetTokenHash: tokenHash, resetTokenExpiresAt: expiresAt, updatedAt: new Date() })
+    .where(eq(users.id, userRow.id));
+
+  const resetUrl = `${env.frontendUrl}/?resetToken=${rawToken}`;
+  const { subject, html } = passwordResetEmail(userRow.name, resetUrl);
+  await sendEmail(userRow.email, subject, html);
+
+  return res.json(genericResponse);
+});
+
+export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
+  const parsed = resetPasswordSchema.parse(req.body);
+  const tokenHash = hashToken(parsed.token);
+
+  const userRow = await db.query.users.findFirst({ where: eq(users.resetTokenHash, tokenHash) });
+
+  if (!userRow || !userRow.resetTokenExpiresAt || userRow.resetTokenExpiresAt.getTime() < Date.now()) {
+    return res.status(400).json({
+      success: false,
+      message: 'This reset link is invalid or has expired. Please request a new one.',
+    });
+  }
+
+  const hashedPassword = await hashPassword(parsed.newPassword);
+
+  await db
+    .update(users)
+    .set({
+      password: hashedPassword,
+      resetTokenHash: null,
+      resetTokenExpiresAt: null,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userRow.id));
+
+  return res.json({ success: true, message: 'Your password has been updated. You can now sign in.' });
 });

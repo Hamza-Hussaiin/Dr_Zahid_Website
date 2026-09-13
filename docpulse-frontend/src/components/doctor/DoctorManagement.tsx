@@ -47,9 +47,12 @@ export const DoctorManagement: React.FC = () => {
           message: `${doc.name} is now ${!doc.isActive ? 'Active & Listed' : 'Deactivated'}.`
         });
         await refreshAllData();
+      } else {
+        addToast({ type: 'error', title: 'Could Not Update Status', message: (res as any).message || 'Unknown error.' });
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      addToast({ type: 'error', title: 'Request Failed', message: e.message || 'Could not reach the server.' });
     }
   };
 
@@ -90,9 +93,12 @@ export const DoctorManagement: React.FC = () => {
           clinicAddress: '33-S-20 ST NO 2 Sunny View Park Ramgarh Mughalpura Lahore'
         });
         await refreshAllData();
+      } else {
+        addToast({ type: 'error', title: 'Could Not Add Doctor', message: (res as any).message || 'Unknown error.' });
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      addToast({ type: 'error', title: 'Request Failed', message: e.message || 'Could not reach the server.' });
     }
     setIsSubmitting(false);
   };

@@ -24,11 +24,13 @@ export type AppView =
   | 'doctor-management'
   | 'admin-dashboard'
   | 'booking'
-  | 'profile-settings';
+  | 'profile-settings'
+  | 'reset-password';
 
 interface AppContextType {
   currentView: AppView;
   setCurrentView: (view: AppView) => void;
+  passwordResetToken: string | null;
   selectedDoctorId: string | null;
   setSelectedDoctorId: (id: string | null) => void;
   selectedAppointment: Appointment | null;
@@ -80,7 +82,13 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   
-  const [currentView, setCurrentView] = useState<AppView>('home');
+  // If the page loaded from a password-reset email link (?resetToken=...),
+  // land straight on the reset-password screen and capture the token before
+  // anything else runs.
+  const initialResetToken = new URLSearchParams(window.location.search).get('resetToken');
+
+  const [currentView, setCurrentView] = useState<AppView>(initialResetToken ? 'reset-password' : 'home');
+  const [passwordResetToken] = useState<string | null>(initialResetToken);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   
@@ -117,10 +125,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const [docsRes, aptsRes, notifsRes, contentRes] = await Promise.all([
         api.getDoctors(true),
-        api.getAppointments({
-          userId: user?.id,
-          role: user?.role
-        }),
+        api.getAppointments(
+          user && (user.role === 'admin_doctor' || user.role === 'super_admin')
+            ? {} // admins see everything platform-wide by default
+            : { userId: user?.id, role: user?.role }
+        ),
         api.getNotifications(user?.id),
         api.getClinicContent()
       ]);
@@ -399,6 +408,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       value={{
         currentView,
         setCurrentView,
+        passwordResetToken,
         selectedDoctorId,
         setSelectedDoctorId,
         selectedAppointment,

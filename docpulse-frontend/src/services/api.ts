@@ -56,6 +56,24 @@ export const api = {
     return resData;
   },
 
+    async forgotPassword(email: string): Promise<{ success: boolean; message?: string }> {
+    const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    return res.json();
+  },
+
+  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message?: string }> {
+    const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, newPassword })
+    });
+    return res.json();
+  },
+
   async getMe(): Promise<{ success: boolean; user?: User; message?: string }> {
     const token = localStorage.getItem('zahid_clinic_token');
     if (!token) return { success: false, message: 'No token stored' };

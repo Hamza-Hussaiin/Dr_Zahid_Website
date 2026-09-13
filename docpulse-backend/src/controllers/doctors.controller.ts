@@ -1,7 +1,7 @@
+import { eq, asc } from 'drizzle-orm';
 import { sendEmail, doctorWelcomeEmail } from '../services/email.service';
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
 import crypto from 'crypto';
 import { db } from '../db';
 import { doctorProfiles, users, timeSlots, reviews } from '../db/schema';
@@ -54,8 +54,8 @@ export const getDoctors = asyncHandler(async (req: Request, res: Response) => {
   const includeInactive = req.query.all === 'true';
 
   const rows = includeInactive
-    ? await db.query.doctorProfiles.findMany()
-    : await db.query.doctorProfiles.findMany({ where: eq(doctorProfiles.isActive, true) });
+    ? await db.query.doctorProfiles.findMany({ orderBy: asc(doctorProfiles.createdAt) })
+    : await db.query.doctorProfiles.findMany({ where: eq(doctorProfiles.isActive, true), orderBy: asc(doctorProfiles.createdAt) });
 
   return res.json({ success: true, doctors: rows.map(serializeDoctor) });
 });

@@ -35,6 +35,11 @@ export const users = pgTable('users', {
   role: userRoleEnum('role').notNull(),
   avatar: text('avatar').notNull().default(''),
   status: userStatusEnum('status').notNull().default('active'),
+  // Password reset: we store a SHA-256 hash of the reset token, never the
+  // raw token itself, so a leaked database alone can't be used to reset
+  // anyone's password. The raw token only ever exists in the emailed link.
+  resetTokenHash: text('reset_token_hash'),
+  resetTokenExpiresAt: timestamp('reset_token_expires_at'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
