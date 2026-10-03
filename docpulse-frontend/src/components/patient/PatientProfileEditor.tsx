@@ -62,6 +62,8 @@ export const PatientProfileEditor: React.FC = () => {
     }
   }, [patientProfile]);
 
+  const [isSaving, setIsSaving] = useState(false);
+
   if (isDoctor || isAdminDoctor) {
     return null;
   }

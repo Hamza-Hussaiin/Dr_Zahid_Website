@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 export const AboutClinic: React.FC = () => {
-  const { clinicInfo, startBookingWithDoctor } = useApp();
+  const { clinicInfo, doctors, startBookingWithDoctor, setCurrentView, setSelectedDoctorId } = useApp();
 
   const facilities = [
     {
@@ -113,7 +113,36 @@ export const AboutClinic: React.FC = () => {
             ))}
           </div>
         </div>
-
+        {/* Meet Our Doctors - pulls live from each doctor's own profile, so
+            editing qualifications/bio/photo in their profile editor updates
+            this section automatically. */}
+        {doctors.filter(d => d.isActive).length > 0 && (
+          <div>
+            <div className="max-w-2xl mx-auto text-center mb-6">
+              <h3 className="text-xl font-bold text-slate-900">Meet Our Doctors</h3>
+              <p className="text-xs text-slate-600 mt-1">The clinicians behind your care.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+              {doctors.filter(d => d.isActive).map(doc => (
+                <button
+                  key={doc.id}
+                  onClick={() => { setSelectedDoctorId(doc.id); setCurrentView('doctor-detail'); }}
+                  className="text-left bg-white p-5 rounded-2xl border border-teal-100 shadow-2xs hover:shadow-md transition-shadow cursor-pointer"
+                >
+                  <img
+                    src={doc.avatar || '/blank-pfp.svg'}
+                    alt={doc.name}
+                    className="w-16 h-16 rounded-xl object-cover mb-3 bg-slate-100"
+                  />
+                  <h4 className="text-sm font-bold text-slate-900">{doc.name}</h4>
+                  <p className="text-xs text-teal-700 font-semibold">{doc.title}</p>
+                  <p className="text-[11px] text-slate-500 mt-1">{doc.specialization} • {doc.experienceYears} yrs experience</p>
+                  <p className="text-[11px] text-slate-600 mt-2 line-clamp-2">{doc.bio}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {/* CTA */}
         <div className="text-center bg-[#39393A] rounded-3xl p-8 sm:p-10 text-white shadow-xl">
           <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">Schedule Your Medical Consultation</h3>

@@ -19,10 +19,31 @@ import {
 } from 'lucide-react';
 
 export const DoctorManagement: React.FC = () => {
-  const { isAdminDoctor, isSuperAdmin } = useAuth();
+  const { isAdminDoctor, isSuperAdmin, user } = useAuth();
   const { doctors, appointments, setCurrentView, addToast, refreshAllData } = useApp();
 
   const [showAddModal, setShowAddModal] = useState(false);
+  const [createdDoctorCredentials, setCreatedDoctorCredentials] = useState<{ email: string; password: string } | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<DoctorProfile | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      const res = await api.deleteDoctor(deleteTarget.id);
+      if (res.success) {
+        addToast({ type: 'success', title: 'Doctor Removed', message: `${deleteTarget.name} and all associated data have been permanently deleted.` });
+        setDeleteTarget(null);
+        await refreshAllData();
+      } else {
+        addToast({ type: 'error', title: 'Could Not Delete', message: (res as any).message || 'Unknown error.' });
+      }
+    } catch (e: any) {
+      addToast({ type: 'error', title: 'Request Failed', message: e.message || 'Could not reach the server.' });
+    }
+    setIsDeleting(false);
+  };
   const [newDoctor, setNewDoctor] = useState({
     name: '',
     email: '',
@@ -75,12 +96,19 @@ export const DoctorManagement: React.FC = () => {
       });
 
       if (res.success) {
-        addToast({
-          type: 'success',
-          title: 'Doctor Onboarded',
-          message: `${newDoctor.name} has been added to the clinic staff directory.`
-        });
         setShowAddModal(false);
+        if ((res as any).temporaryPassword) {
+          setCreatedDoctorCredentials({
+            email: newDoctor.email,
+            password: (res as any).temporaryPassword
+          });
+        } else {
+          addToast({
+            type: 'success',
+            title: 'Doctor Onboarded',
+            message: `${newDoctor.name} has been added to the clinic staff directory.`
+          });
+        }
         setNewDoctor({
           name: '',
           email: '',
@@ -185,16 +213,31 @@ export const DoctorManagement: React.FC = () => {
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <button
-                    onClick={() => handleToggleDoctorStatus(doc)}
-                    className={`text-xs font-semibold px-3 py-1.5 rounded-xl border transition-colors cursor-pointer ${
-                      doc.isActive
-                        ? 'text-rose-700 bg-rose-50 border-rose-200 hover:bg-rose-100'
-                        : 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
-                    }`}
-                  >
-                    {doc.isActive ? 'Deactivate Doctor' : 'Activate Doctor'}
-                  </button>
+                  {doc.userId === user?.id ? (
+                    <span className="text-xs font-semibold text-slate-400 italic">
+                      This is your own admin account
+                    </span>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleToggleDoctorStatus(doc)}
+                        className={`text-xs font-semibold px-3 py-1.5 rounded-xl border transition-colors cursor-pointer ${
+                          doc.isActive
+                            ? 'text-rose-700 bg-rose-50 border-rose-200 hover:bg-rose-100'
+                            : 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
+                        }`}
+                      >
+                        {doc.isActive ? 'Deactivate Doctor' : 'Activate Doctor'}
+                      </button>
+
+                      <button
+                        onClick={() => setDeleteTarget(doc)}
+                        className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-rose-300 text-rose-700 bg-white hover:bg-rose-50 transition-colors cursor-pointer"
+                      >
+                        Remove Permanently
+                      </button>
+                    </div>
+                  )}
 
                   <span className="text-xs font-bold text-amber-500 flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 fill-current" />
@@ -328,6 +371,53 @@ export const DoctorManagement: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4">
+            <h3 className="text-sm font-bold text-slate-900">Permanently Remove Doctor?</h3>
+            <p className="text-xs text-slate-600">
+              This will permanently delete <strong>{deleteTarget.name}</strong>'s account, profile, time slots, reviews, and appointment history. This cannot be undone. Use "Deactivate" instead if you just want to hide them temporarily.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? 'Deleting...' : 'Yes, Delete Permanently'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {createdDoctorCredentials && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4">
+            <h3 className="text-sm font-bold text-slate-900">Doctor Account Created</h3>
+            <p className="text-xs text-slate-600">
+              Share these login details with the doctor securely (they won't be shown again). The welcome email may not arrive if your Resend sender isn't verified for this address yet.
+            </p>
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1 text-xs">
+              <div><span className="font-semibold text-slate-500">Email:</span> <span className="font-bold text-slate-900">{createdDoctorCredentials.email}</span></div>
+              <div><span className="font-semibold text-slate-500">Temporary Password:</span> <span className="font-bold text-slate-900">{createdDoctorCredentials.password}</span></div>
+            </div>
+            <button
+              onClick={() => setCreatedDoctorCredentials(null)}
+              className="w-full px-4 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl cursor-pointer"
+            >
+              Done
+            </button>
           </div>
         </div>
       )}

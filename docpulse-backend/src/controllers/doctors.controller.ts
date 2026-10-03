@@ -1,3 +1,4 @@
+import { doctorProfiles, users, timeSlots, reviews, appointments } from '../db/schema';
 import { eq, asc } from 'drizzle-orm';
 import { sendEmail, doctorWelcomeEmail } from '../services/email.service';
 import { Request, Response } from 'express';
@@ -203,12 +204,32 @@ export const deleteDoctor = asyncHandler(async (req: Request, res: Response) => 
     throw new ApiError(404, 'Doctor not found.');
   }
 
-  // Soft-delete: deactivate rather than hard-delete, so existing appointment
-  // history stays intact and valid.
-  await db.update(doctorProfiles).set({ isActive: false, updatedAt: new Date() }).where(eq(doctorProfiles.id, id));
-  await db.update(users).set({ status: 'inactive', updatedAt: new Date() }).where(eq(users.id, existing.userId));
+  const owningUser = await db.query.users.findFirst({ where: eq(users.id, existing.userId) });
 
-  broadcast({ type: 'doctor_updated', payload: { id, isActive: false } });
+  // The clinic's own admin account also has a doctor profile (so the admin
+  // can take appointments too), but it must never be removable this way -
+  // that would delete the one account that runs the whole clinic.
+  if (owningUser && (owningUser.role === 'admin_doctor' || owningUser.role === 'super_admin')) {
+    throw new ApiError(400, 'The clinic admin account cannot be permanently deleted. Use deactivation instead.');
+  }
 
-  return res.json({ success: true, message: 'Doctor account deactivated.' });
+  // Appointments reference this doctor without an automatic cascade (by
+  // design, so a doctor can't accidentally be deleted and silently wipe a
+  // patient's own appointment history) - remove them explicitly first. Their
+  // chat messages are cascade-deleted automatically once the appointment
+  // rows are gone.
+  await db.delete(appointments).where(eq(appointments.doctorId, id));
+
+  // Deleting the doctor profile cascades to their time slots and reviews
+  // automatically (set up that way in the schema).
+  await db.delete(doctorProfiles).where(eq(doctorProfiles.id, id));
+
+  // Deleting the user cascades to their notifications automatically.
+  if (owningUser) {
+    await db.delete(users).where(eq(users.id, owningUser.id));
+  }
+
+  broadcast({ type: 'doctor_deleted', payload: { id } });
+
+  return res.json({ success: true, message: 'Doctor account and all associated data permanently removed.' });
 });

@@ -573,9 +573,15 @@ export const DoctorDashboard: React.FC = () => {
                           <span className="font-medium text-slate-800">{att.name}</span>
                           <span className="text-[10px] text-slate-400">({att.size})</span>
                         </div>
-                        <span className="text-[10px] font-bold text-[#5B8C5A] bg-[#5B8C5A]/15 px-2 py-0.5 rounded border border-[#5B8C5A]/30">
-                          Encrypted & Verified
-                        </span>
+                        <a
+                          href={`${att.url}&token=${localStorage.getItem('zahid_clinic_token') || ''}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-[10px] font-bold text-white bg-[#5B8C5A] hover:bg-[#4A7349] px-2 py-1 rounded transition-colors"
+                        >
+                          <Download className="w-3 h-3" />
+                          <span>View / Download</span>
+                        </a>
                       </div>
                     ))}
                   </div>

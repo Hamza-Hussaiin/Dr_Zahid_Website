@@ -18,7 +18,7 @@ export const registerRateLimiter = rateLimit({
 
 export const forgotPasswordRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 5,
+  limit: 20,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Too many reset requests. Please try again in 15 minutes.' },

@@ -98,13 +98,23 @@ export const DoctorProfileEditor: React.FC = () => {
     <div className="py-8 bg-slate-50 min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         
-        <button
-          onClick={() => setCurrentView('doctor-dashboard')}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-teal-700 transition-colors cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Dashboard</span>
-        </button>
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => setCurrentView('doctor-dashboard')}
+            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-teal-700 transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Dashboard</span>
+          </button>
+
+          <button
+            onClick={() => setCurrentView('doctor-slots')}
+            className="inline-flex items-center gap-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 px-3.5 py-2 rounded-xl shadow-xs cursor-pointer"
+          >
+            <Calendar className="w-4 h-4" />
+            <span>Manage Availability Slots</span>
+          </button>
+        </div>
 
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
           <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
