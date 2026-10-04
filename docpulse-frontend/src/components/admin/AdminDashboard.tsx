@@ -54,7 +54,7 @@ export const AdminDashboard: React.FC = () => {
     mission: clinicInfo?.mission || ''
   });
 
-    const hasSyncedClinicInfo = useRef(false);
+  const hasSyncedClinicInfo = useRef(false);
   useEffect(() => {
     if (clinicInfo && !hasSyncedClinicInfo.current) {
       setInfoForm({
@@ -158,7 +158,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold">
-              <ShieldCheck className="w-7 h-7 text-teal-400" />
+              <ShieldCheck className="w-7 h-7 text-[#5B8C5A]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -178,7 +178,7 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setCurrentView('doctor-management')}
-              className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="bg-[#5B8C5A] hover:bg-[#4A7349] text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Stethoscope className="w-3.5 h-3.5" />
               <span>Manage Doctors</span>
@@ -194,7 +194,7 @@ export const AdminDashboard: React.FC = () => {
               activeTab === 'overview' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
             }`}
           >
-            <Activity className="w-4 h-4 text-teal-400" />
+            <Activity className="w-4 h-4 text-[#5B8C5A]" />
             <span>Platform Overview</span>
           </button>
 
@@ -204,7 +204,7 @@ export const AdminDashboard: React.FC = () => {
               activeTab === 'appointments' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
             }`}
           >
-            <Calendar className="w-4 h-4 text-teal-400" />
+            <Calendar className="w-4 h-4 text-[#5B8C5A]" />
             <span>All Appointments ({appointments.length})</span>
           </button>
 
@@ -214,7 +214,7 @@ export const AdminDashboard: React.FC = () => {
               activeTab === 'services' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
             }`}
           >
-            <HeartPulse className="w-4 h-4 text-teal-400" />
+            <HeartPulse className="w-4 h-4 text-[#5B8C5A]" />
             <span>Clinical Services ({clinicServices.length})</span>
           </button>
 
@@ -224,7 +224,7 @@ export const AdminDashboard: React.FC = () => {
               activeTab === 'clinic_info' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
             }`}
           >
-            <Building2 className="w-4 h-4 text-teal-400" />
+            <Building2 className="w-4 h-4 text-[#5B8C5A]" />
             <span>Clinic Settings & Content</span>
           </button>
         </div>
@@ -238,7 +238,7 @@ export const AdminDashboard: React.FC = () => {
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-2xs">
                 <div className="flex items-center justify-between text-slate-500 mb-2">
                   <span className="text-xs font-bold uppercase">Total Bookings</span>
-                  <Calendar className="w-4 h-4 text-teal-600" />
+                  <Calendar className="w-4 h-4 text-[#5B8C5A]" />
                 </div>
                 <div className="text-3xl font-black text-slate-900">{appointments.length}</div>
                 <p className="text-[11px] text-slate-500 mt-1">Across all specialist calendars</p>
@@ -247,9 +247,9 @@ export const AdminDashboard: React.FC = () => {
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-2xs">
                 <div className="flex items-center justify-between text-slate-500 mb-2">
                   <span className="text-xs font-bold uppercase">Active Specialists</span>
-                  <Stethoscope className="w-4 h-4 text-cyan-600" />
+                  <Stethoscope className="w-4 h-4 text-[#5B8C5A]" />
                 </div>
-                <div className="text-3xl font-black text-cyan-700">{doctors.filter(d => d.isActive).length}</div>
+                <div className="text-3xl font-black text-[#4A7349]">{doctors.filter(d => d.isActive).length}</div>
                 <p className="text-[11px] text-slate-500 mt-1">{doctors.length} total staff profiles</p>
               </div>
 
@@ -298,10 +298,10 @@ export const AdminDashboard: React.FC = () => {
                       return (
                         <tr key={doc.id} className="hover:bg-slate-50/80">
                           <td className="py-3 px-4 font-bold text-slate-900 flex items-center gap-2">
-                            <img src={doc.avatar} alt={doc.name} className="w-7 h-7 rounded-full object-cover" />
+                            <img src={doc.avatar || '/blank-pfp.svg'} alt={doc.name} className="w-7 h-7 rounded-full object-cover" />
                             <span>{doc.name}</span>
                           </td>
-                          <td className="py-3 px-4 text-teal-700 font-medium">{doc.specialization}</td>
+                          <td className="py-3 px-4 text-[#4A7349] font-medium">{doc.specialization}</td>
                           <td className="py-3 px-4 font-semibold text-slate-800">{docApts.length}</td>
                           <td className="py-3 px-4 font-bold text-slate-900">Rs. {doc.consultationFee?.toLocaleString()}</td>
                           <td className="py-3 px-4 text-amber-500 font-bold">★ {doc.rating}</td>
@@ -343,7 +343,7 @@ export const AdminDashboard: React.FC = () => {
                     placeholder="Search patient, doctor..."
                     value={aptSearch}
                     onChange={e => setAptSearch(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-teal-500/20"
+                    className="pl-8 pr-3 py-1.5 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-[#5B8C5A]/20"
                   />
                 </div>
 
@@ -442,7 +442,7 @@ export const AdminDashboard: React.FC = () => {
 
               <button
                 onClick={() => setShowServiceModal(true)}
-                className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="bg-[#5B8C5A] hover:bg-[#4A7349] text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Specialty Service</span>
@@ -454,7 +454,7 @@ export const AdminDashboard: React.FC = () => {
                 <div key={srv.id} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] font-bold text-teal-700 uppercase">{srv.department}</span>
+                      <span className="text-[10px] font-bold text-[#4A7349] uppercase">{srv.department}</span>
                       <span className="text-xs font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200">{srv.priceRange}</span>
                     </div>
                     <h4 className="text-sm font-bold text-slate-900 mb-1">{srv.title}</h4>
@@ -550,7 +550,7 @@ export const AdminDashboard: React.FC = () => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-xs flex items-center gap-2 transition-colors cursor-pointer"
+                  className="bg-[#5B8C5A] hover:bg-[#4A7349] text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-xs flex items-center gap-2 transition-colors cursor-pointer"
                 >
                   <Save className="w-4 h-4" />
                   <span>Save Public Content</span>
@@ -625,7 +625,7 @@ export const AdminDashboard: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl cursor-pointer"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#5B8C5A] hover:bg-[#4A7349] rounded-xl cursor-pointer"
                 >
                   Add Service
                 </button>

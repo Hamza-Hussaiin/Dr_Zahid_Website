@@ -1,3 +1,4 @@
+import { ChangePasswordCard } from '../common/ChangePasswordCard';
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
@@ -42,7 +43,7 @@ export const PatientProfileEditor: React.FC = () => {
     insurancePolicyNumber: patientProfile?.insurancePolicyNumber || 'BCBS-99418290-CA'
   });
 
-    const hasSyncedProfile = useRef(false);
+  const hasSyncedProfile = useRef(false);
   useEffect(() => {
     if (patientProfile && !hasSyncedProfile.current) {
       setFormData({
@@ -100,7 +101,7 @@ export const PatientProfileEditor: React.FC = () => {
         {/* Back Button */}
         <button
           onClick={() => setCurrentView('patient-dashboard')}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-teal-700 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-[#4A7349] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Dashboard</span>
@@ -109,7 +110,7 @@ export const PatientProfileEditor: React.FC = () => {
         {/* Profile Card */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
           <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
-            <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
+            <div className="w-12 h-12 rounded-2xl bg-[#5B8C5A]/15 text-[#4A7349] flex items-center justify-center font-bold">
               <User className="w-6 h-6" />
             </div>
             <div>
@@ -138,7 +139,7 @@ export const PatientProfileEditor: React.FC = () => {
                     type="date"
                     value={formData.dob}
                     onChange={e => setFormData({ ...formData, dob: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-[#5B8C5A]/20"
                   />
                 </div>
                 <div>
@@ -147,7 +148,7 @@ export const PatientProfileEditor: React.FC = () => {
                     type="number"
                     value={formData.age}
                     onChange={e => setFormData({ ...formData, age: Number(e.target.value) })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-[#5B8C5A]/20"
                   />
                 </div>
                 <div>
@@ -155,7 +156,7 @@ export const PatientProfileEditor: React.FC = () => {
                   <select
                     value={formData.gender}
                     onChange={e => setFormData({ ...formData, gender: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-[#5B8C5A]/20"
                   >
                     <option value="female">Female</option>
                     <option value="male">Male</option>
@@ -168,7 +169,7 @@ export const PatientProfileEditor: React.FC = () => {
                   <select
                     value={formData.bloodGroup}
                     onChange={e => setFormData({ ...formData, bloodGroup: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500/20 font-bold"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-[#5B8C5A]/20 font-bold"
                   >
                     <option value="O+">O+</option>
                     <option value="O-">O-</option>
@@ -196,7 +197,7 @@ export const PatientProfileEditor: React.FC = () => {
                     placeholder="e.g. Penicillin, Sulfa drugs, Peanuts, Latex..."
                     value={formData.allergies}
                     onChange={e => setFormData({ ...formData, allergies: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-[#5B8C5A]/20"
                   />
                 </div>
                 <div>
@@ -206,7 +207,7 @@ export const PatientProfileEditor: React.FC = () => {
                     placeholder="e.g. Hypertension, Type 2 Diabetes, Appendectomy (2019)..."
                     value={formData.chronicConditions}
                     onChange={e => setFormData({ ...formData, chronicConditions: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-[#5B8C5A]/20"
                   />
                 </div>
                 <div>
@@ -216,7 +217,7 @@ export const PatientProfileEditor: React.FC = () => {
                     placeholder="List all active prescriptions, OTC drugs, and vitamins..."
                     value={formData.currentMedications}
                     onChange={e => setFormData({ ...formData, currentMedications: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500/20 resize-none"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-[#5B8C5A]/20 resize-none"
                   />
                 </div>
               </div>
@@ -234,7 +235,7 @@ export const PatientProfileEditor: React.FC = () => {
                     type="text"
                     value={formData.emergencyContactName}
                     onChange={e => setFormData({ ...formData, emergencyContactName: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-[#5B8C5A]/20"
                   />
                 </div>
                 <div>
@@ -243,7 +244,7 @@ export const PatientProfileEditor: React.FC = () => {
                     type="tel"
                     value={formData.emergencyContactPhone}
                     onChange={e => setFormData({ ...formData, emergencyContactPhone: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-[#5B8C5A]/20"
                   />
                 </div>
               </div>
@@ -255,7 +256,7 @@ export const PatientProfileEditor: React.FC = () => {
                     type="text"
                     value={formData.insuranceProvider}
                     onChange={e => setFormData({ ...formData, insuranceProvider: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-[#5B8C5A]/20"
                   />
                 </div>
                 <div>
@@ -264,7 +265,7 @@ export const PatientProfileEditor: React.FC = () => {
                     type="text"
                     value={formData.insurancePolicyNumber}
                     onChange={e => setFormData({ ...formData, insurancePolicyNumber: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-[#5B8C5A]/20"
                   />
                 </div>
               </div>
@@ -274,7 +275,7 @@ export const PatientProfileEditor: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-xs flex items-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
+                className="bg-[#5B8C5A] hover:bg-[#4A7349] text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-xs flex items-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
                 <span>{isSaving ? 'Saving Profile...' : 'Save Medical Profile'}</span>
@@ -283,6 +284,8 @@ export const PatientProfileEditor: React.FC = () => {
 
           </form>
         </div>
+
+        <ChangePasswordCard />
 
       </div>
     </div>

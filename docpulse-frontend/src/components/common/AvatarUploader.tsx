@@ -16,7 +16,7 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
   size = 88
 }) => {
   const { user, doctorProfile, updateCurrentUser, updateDoctorProfile } = useAuth();
-  const { addToast } = useApp();
+  const { addToast, refreshAllData } = useApp();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -46,9 +46,15 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
         throw new Error(saveRes.message || 'Could not save profile picture');
       }
 
-      updateCurrentUser({ avatar: uploadRes.url });
+           updateCurrentUser({ avatar: uploadRes.url });
       if (doctorProfile) {
         updateDoctorProfile({ ...doctorProfile, avatar: uploadRes.url });
+        // The uploader only updates this doctor's own private copy of their
+        // profile - everywhere else in the app (booking, directory, admin
+        // dashboard, etc.) reads from the shared doctors list instead, so
+        // that needs an explicit refresh too for the new photo to show up
+        // immediately everywhere rather than waiting on the next background sync.
+        await refreshAllData();
       }
 
       addToast({ type: 'success', title: 'Profile Picture Updated', message: 'Your new photo is now live.' });

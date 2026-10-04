@@ -381,7 +381,7 @@ export const BookingWizard: React.FC = () => {
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs bg-[#E6E6E6]/60 p-3.5 rounded-xl border border-[#D6D6D6]">
               <div className="flex items-center gap-3">
                 <img
-                  src={currentDoctor.avatar}
+                  src={currentDoctor.avatar || '/blank-pfp.svg'}
                   alt={currentDoctor.name}
                   className="w-10 h-10 rounded-lg object-cover border border-[#D6D6D6]"
                 />
@@ -431,7 +431,7 @@ export const BookingWizard: React.FC = () => {
                   >
                     <div className="flex items-center gap-3">
                       <img
-                        src={doc.avatar}
+                        src={doc.avatar || '/blank-pfp.svg'}
                         alt={doc.name}
                         className="w-12 h-12 rounded-lg object-cover border border-[#D6D6D6] shrink-0"
                       />

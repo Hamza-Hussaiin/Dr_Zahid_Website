@@ -195,3 +195,34 @@ export const resetPassword = asyncHandler(async (req: Request, res: Response) =>
 
   return res.json({ success: true, message: 'Your password has been updated. You can now sign in.' });
 });
+
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required.'),
+  newPassword: z.string().min(6, 'New password must be at least 6 characters.'),
+});
+
+export const changeMyPassword = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ success: false, message: 'Not authenticated.' });
+  }
+  const parsed = changePasswordSchema.parse(req.body);
+
+  const userRow = await db.query.users.findFirst({ where: eq(users.id, req.user.id) });
+  if (!userRow) {
+    return res.status(404).json({ success: false, message: 'Account not found.' });
+  }
+
+  const isCorrect = await comparePassword(parsed.currentPassword, userRow.password);
+  if (!isCorrect) {
+    return res.status(400).json({ success: false, message: 'Your current password is incorrect.' });
+  }
+
+  const hashedNewPassword = await hashPassword(parsed.newPassword);
+  await db
+    .update(users)
+    .set({ password: hashedNewPassword, updatedAt: new Date() })
+    .where(eq(users.id, userRow.id));
+
+  return res.json({ success: true, message: 'Your password has been changed successfully.' });
+});

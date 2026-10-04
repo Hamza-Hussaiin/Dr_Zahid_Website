@@ -64,7 +64,7 @@ export const DoctorDirectory: React.FC = () => {
                 {/* Doctor Top Row */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
                   <img
-                    src={doctor.avatar}
+                    src={doctor.avatar || '/blank-pfp.svg'}
                     alt={doctor.name}
                     className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border border-[#D6D6D6] shadow-xs shrink-0"
                   />

@@ -1,3 +1,4 @@
+import { ChangePasswordCard } from '../common/ChangePasswordCard';
 import React, { useState, useEffect, useRef } from 'react';
 import { AvatarUploader } from '../common/AvatarUploader';
 import { useAuth } from '../../context/AuthContext';
@@ -12,6 +13,7 @@ import {
   DollarSign, 
   Save, 
   ArrowLeft,
+  Calendar,
   CheckCircle2,
   Plus,
   Trash2
@@ -34,7 +36,7 @@ export const DoctorProfileEditor: React.FC = () => {
     servicesOffered: doctorProfile?.servicesOffered?.join(', ') || 'Medical Consultation, Chat Consultation, Home Visit'
   });
 
-    const hasSyncedProfile = useRef(false);
+  const hasSyncedProfile = useRef(false);
   useEffect(() => {
     if (doctorProfile && !hasSyncedProfile.current) {
       setFormData({
@@ -101,7 +103,7 @@ export const DoctorProfileEditor: React.FC = () => {
         <div className="flex items-center justify-between">
           <button
             onClick={() => setCurrentView('doctor-dashboard')}
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-teal-700 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-[#4A7349] transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Dashboard</span>
@@ -109,7 +111,7 @@ export const DoctorProfileEditor: React.FC = () => {
 
           <button
             onClick={() => setCurrentView('doctor-slots')}
-            className="inline-flex items-center gap-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 px-3.5 py-2 rounded-xl shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 text-xs font-bold text-white bg-[#5B8C5A] hover:bg-[#4A7349] px-3.5 py-2 rounded-xl shadow-xs cursor-pointer"
           >
             <Calendar className="w-4 h-4" />
             <span>Manage Availability Slots</span>
@@ -118,7 +120,7 @@ export const DoctorProfileEditor: React.FC = () => {
 
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
           <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
-            <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
+            <div className="w-12 h-12 rounded-2xl bg-[#5B8C5A]/15 text-[#4A7349] flex items-center justify-center font-bold">
               <Stethoscope className="w-6 h-6" />
             </div>
             <div>
@@ -254,7 +256,7 @@ export const DoctorProfileEditor: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-xs flex items-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
+                className="bg-[#5B8C5A] hover:bg-[#4A7349] text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-xs flex items-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
                 <span>{isSaving ? 'Saving Profile...' : 'Save Public Profile'}</span>
@@ -263,6 +265,8 @@ export const DoctorProfileEditor: React.FC = () => {
 
           </form>
         </div>
+
+        <ChangePasswordCard />
 
       </div>
     </div>

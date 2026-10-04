@@ -24,7 +24,7 @@ export const DoctorManagement: React.FC = () => {
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [createdDoctorCredentials, setCreatedDoctorCredentials] = useState<{ email: string; password: string } | null>(null);
-    const [deleteTarget, setDeleteTarget] = useState<DoctorProfile | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<DoctorProfile | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleConfirmDelete = async () => {
@@ -139,7 +139,7 @@ export const DoctorManagement: React.FC = () => {
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <Stethoscope className="w-6 h-6 text-teal-600" />
+              <Stethoscope className="w-6 h-6 text-[#5B8C5A]" />
               <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900">
                 Clinic Doctors & Specialists Directory
               </h1>
@@ -151,7 +151,7 @@ export const DoctorManagement: React.FC = () => {
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs flex items-center gap-2 transition-colors cursor-pointer"
+            className="bg-[#5B8C5A] hover:bg-[#4A7349] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs flex items-center gap-2 transition-colors cursor-pointer"
           >
             <UserPlus className="w-4 h-4" />
             <span>Onboard New Doctor</span>
@@ -174,7 +174,7 @@ export const DoctorManagement: React.FC = () => {
                 <div>
                   <div className="flex items-start justify-between gap-3 mb-4">
                     <img
-                      src={doc.avatar}
+                      src={doc.avatar || '/blank-pfp.svg'}
                       alt={doc.name}
                       className="w-16 h-16 rounded-2xl object-cover border border-slate-200 shadow-2xs"
                     />
@@ -188,7 +188,7 @@ export const DoctorManagement: React.FC = () => {
                   </div>
 
                   <h3 className="text-base font-bold text-slate-900">{doc.name}</h3>
-                  <p className="text-xs text-teal-700 font-semibold">{doc.title} • {doc.specialization}</p>
+                  <p className="text-xs text-[#4A7349] font-semibold">{doc.title} • {doc.specialization}</p>
 
                   <div className="mt-3 p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
                     <div className="flex justify-between text-slate-600">
@@ -258,7 +258,7 @@ export const DoctorManagement: React.FC = () => {
           <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-xl w-full border border-slate-200 shadow-2xl space-y-4 my-8">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-teal-600" />
+                <UserPlus className="w-5 h-5 text-[#5B8C5A]" />
                 <h3 className="text-base font-bold text-slate-900">Onboard New Medical Doctor</h3>
               </div>
               <button
@@ -365,7 +365,7 @@ export const DoctorManagement: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#5B8C5A] hover:bg-[#4A7349] rounded-xl cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Onboarding...' : 'Confirm & Add Doctor'}
                 </button>
@@ -414,7 +414,7 @@ export const DoctorManagement: React.FC = () => {
             </div>
             <button
               onClick={() => setCreatedDoctorCredentials(null)}
-              className="w-full px-4 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl cursor-pointer"
+              className="w-full px-4 py-2 text-xs font-bold text-white bg-[#5B8C5A] hover:bg-[#4A7349] rounded-xl cursor-pointer"
             >
               Done
             </button>

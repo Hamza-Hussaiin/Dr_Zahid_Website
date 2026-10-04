@@ -77,7 +77,7 @@ export const DoctorDetailPage: React.FC = () => {
         <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#D6D6D6] shadow-sm">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             <img
-              src={doctor.avatar}
+              src={doctor.avatar || '/blank-pfp.svg'}
               alt={doctor.name}
               className="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl object-cover border border-[#D6D6D6] shadow-xs"
             />

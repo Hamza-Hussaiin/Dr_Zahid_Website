@@ -52,7 +52,7 @@ export const AboutClinic: React.FC = () => {
         
         {/* Mission Banner */}
         <div className="text-center max-w-3xl mx-auto">
-          <span className="text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#4A7349] bg-[#5B8C5A]/10 px-3 py-1 rounded-full border border-[#5B8C5A]/30">
             About Zahid Clinic & Dr. Zahid Hussain
           </span>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3 tracking-tight">
@@ -66,7 +66,7 @@ export const AboutClinic: React.FC = () => {
         {/* Doctor Spotlight Banner */}
         <div className="bg-[#39393A] rounded-3xl p-8 sm:p-10 text-white shadow-xl flex flex-col md:flex-row items-center gap-8">
           <img
-            src="/blank-pfp.svg"
+            src={doctors[0]?.avatar || '/blank-pfp.svg'}
             alt="Dr. Zahid Hussain"
             className="w-36 h-36 rounded-2xl object-cover border border-[#D6D6D6] shrink-0 shadow-md bg-stone-800"
           />
@@ -89,7 +89,7 @@ export const AboutClinic: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {facilities.map((fac, idx) => (
             <div key={idx} className="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-              <div className="w-12 h-12 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
+              <div className="w-12 h-12 rounded-xl bg-[#5B8C5A]/15 text-[#4A7349] flex items-center justify-center font-bold">
                 <Building2 className="w-6 h-6" />
               </div>
               <h3 className="text-base font-bold text-slate-900">{fac.title}</h3>
@@ -99,15 +99,15 @@ export const AboutClinic: React.FC = () => {
         </div>
 
         {/* Specialized Care Checklist */}
-        <div className="bg-teal-50/60 rounded-3xl p-8 border border-teal-200/80">
+        <div className="bg-[#5B8C5A]/10 rounded-3xl p-8 border border-[#5B8C5A]/30">
           <div className="max-w-2xl mx-auto text-center mb-6">
             <h3 className="text-xl font-bold text-slate-900">Comprehensive Clinical Scope</h3>
             <p className="text-xs text-slate-600 mt-1">Specialized evaluation and treatment for vital conditions:</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-5xl mx-auto">
             {specializedAreas.map((area, idx) => (
-              <div key={idx} className="bg-white p-3.5 rounded-xl border border-teal-100 shadow-2xs flex items-center gap-2.5 text-xs font-semibold text-slate-800">
-                <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0" />
+              <div key={idx} className="bg-white p-3.5 rounded-xl border border-[#5B8C5A]/15 shadow-2xs flex items-center gap-2.5 text-xs font-semibold text-slate-800">
+                <CheckCircle2 className="w-4 h-4 text-[#5B8C5A] shrink-0" />
                 <span>{area}</span>
               </div>
             ))}
@@ -127,7 +127,7 @@ export const AboutClinic: React.FC = () => {
                 <button
                   key={doc.id}
                   onClick={() => { setSelectedDoctorId(doc.id); setCurrentView('doctor-detail'); }}
-                  className="text-left bg-white p-5 rounded-2xl border border-teal-100 shadow-2xs hover:shadow-md transition-shadow cursor-pointer"
+                  className="text-left bg-white p-5 rounded-2xl border border-[#5B8C5A]/15 shadow-2xs hover:shadow-md transition-shadow cursor-pointer"
                 >
                   <img
                     src={doc.avatar || '/blank-pfp.svg'}
@@ -135,7 +135,7 @@ export const AboutClinic: React.FC = () => {
                     className="w-16 h-16 rounded-xl object-cover mb-3 bg-slate-100"
                   />
                   <h4 className="text-sm font-bold text-slate-900">{doc.name}</h4>
-                  <p className="text-xs text-teal-700 font-semibold">{doc.title}</p>
+                  <p className="text-xs text-[#4A7349] font-semibold">{doc.title}</p>
                   <p className="text-[11px] text-slate-500 mt-1">{doc.specialization} • {doc.experienceYears} yrs experience</p>
                   <p className="text-[11px] text-slate-600 mt-2 line-clamp-2">{doc.bio}</p>
                 </button>
@@ -151,7 +151,8 @@ export const AboutClinic: React.FC = () => {
           </p>
           <button
             onClick={() => startBookingWithDoctor()}
-className="bg-[#5B8C5A] hover:bg-[#4A7349] text-white font-bold text-xs px-6 py-3.5 rounded-xl shadow-md transition-colors cursor-pointer inline-flex items-center gap-2"          >
+            className="bg-[#5B8C5A] hover:bg-[#4A7349] text-white font-bold text-xs px-6 py-3.5 rounded-xl shadow-md transition-colors cursor-pointer inline-flex items-center gap-2"
+          >
             <Calendar className="w-4 h-4" />
             <span>Book Appointment with Dr. Zahid Hussain</span>
           </button>

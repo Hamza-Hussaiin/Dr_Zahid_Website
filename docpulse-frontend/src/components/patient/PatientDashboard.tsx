@@ -196,6 +196,34 @@ export const PatientDashboard: React.FC = () => {
           </div>
         )}
 
+        {/* Messages - Active Consultations */}
+        {patientAppointments.filter(a => a.status === 'accepted').length > 0 && (
+          <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#D6D6D6] shadow-xs space-y-4">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-[#5B8C5A]" />
+              <h2 className="text-base font-bold text-[#39393A]">Messages — Active Consultations</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {patientAppointments.filter(a => a.status === 'accepted').map(apt => (
+                <button
+                  key={apt.id}
+                  onClick={() => openChat(apt.id)}
+                  className="flex items-center gap-3 p-3.5 rounded-xl border border-[#5B8C5A]/30 bg-[#5B8C5A]/10 hover:bg-[#5B8C5A]/15 transition-colors text-left cursor-pointer"
+                >
+                  <div className="w-10 h-10 rounded-full bg-[#39393A] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                    {apt.doctorName?.slice(0, 2).toUpperCase() || 'DR'}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-[#39393A] truncate">{apt.doctorName}</p>
+                    <p className="text-[11px] text-stone-500 truncate">{apt.date} • {apt.time}</p>
+                  </div>
+                  <MessageSquare className="w-4 h-4 text-[#5B8C5A] shrink-0" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Tab Navigation for Appointments */}
         <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#D6D6D6] shadow-xs space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E6E6E6] pb-4">

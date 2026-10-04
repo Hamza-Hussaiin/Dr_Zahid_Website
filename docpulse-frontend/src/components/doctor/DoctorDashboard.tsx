@@ -209,6 +209,34 @@ export const DoctorDashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Messages - Active Consultations */}
+        {acceptedApts.length > 0 && (
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-teal-600" />
+              <h2 className="text-base font-bold text-slate-900">Messages — Active Consultations</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {acceptedApts.map(apt => (
+                <button
+                  key={apt.id}
+                  onClick={() => openChat(apt.id)}
+                  className="flex items-center gap-3 p-3.5 rounded-2xl border border-teal-100 bg-teal-50/40 hover:bg-teal-50 transition-colors text-left cursor-pointer"
+                >
+                  <div className="w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                    {apt.patientName?.slice(0, 2).toUpperCase() || 'PT'}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-slate-900 truncate">{apt.patientName}</p>
+                    <p className="text-[11px] text-slate-500 truncate">{apt.date} • {apt.time}</p>
+                  </div>
+                  <MessageSquare className="w-4 h-4 text-teal-600 shrink-0" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Appointments Section */}
         <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">

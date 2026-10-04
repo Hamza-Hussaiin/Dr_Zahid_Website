@@ -22,7 +22,7 @@ export const ContactSection: React.FC = () => {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto">
-          <span className="text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-100/70 px-3 py-1 rounded-full border border-teal-200">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#4A7349] bg-[#5B8C5A]/15 px-3 py-1 rounded-full border border-[#5B8C5A]/30">
             Contact & Location Details
           </span>
           <h1 className="text-3xl font-extrabold text-slate-900 mt-3 tracking-tight">
@@ -41,7 +41,7 @@ export const ContactSection: React.FC = () => {
             {/* Info Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-[#5B8C5A]/10 text-[#4A7349] flex items-center justify-center">
                   <Phone className="w-4 h-4" />
                 </div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Phone / WhatsApp</h4>
@@ -50,7 +50,7 @@ export const ContactSection: React.FC = () => {
               </div>
 
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-[#5B8C5A]/10 text-[#4A7349] flex items-center justify-center">
                   <Clock className="w-4 h-4" />
                 </div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Opening Hours</h4>
@@ -62,7 +62,7 @@ export const ContactSection: React.FC = () => {
             {/* Address Card */}
             <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
               <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-teal-600 mt-0.5 shrink-0" />
+                <MapPin className="w-5 h-5 text-[#5B8C5A] mt-0.5 shrink-0" />
                 <div>
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">Clinic Address</h4>
                   <p className="text-xs text-slate-700 font-semibold mt-0.5 leading-relaxed">
@@ -72,7 +72,7 @@ export const ContactSection: React.FC = () => {
               </div>
 
               <div className="flex items-start gap-3 pt-2 border-t border-slate-100">
-                <Building className="w-5 h-5 text-teal-600 mt-0.5 shrink-0" />
+                <Building className="w-5 h-5 text-[#5B8C5A] mt-0.5 shrink-0" />
                 <div>
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">Doctor In-Charge</h4>
                   <p className="text-xs text-slate-600 mt-0.5">
@@ -86,16 +86,16 @@ export const ContactSection: React.FC = () => {
             <div className="bg-[#39393A] rounded-3xl p-6 text-white border border-slate-800 shadow-md space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-teal-400" />
+                  <MapPin className="w-4 h-4 text-[#5B8C5A]" />
                   <span className="text-xs font-bold text-white">Google Maps Location</span>
                 </div>
-                <span className="text-[10px] text-teal-300 font-semibold bg-teal-950 px-2 py-0.5 rounded border border-teal-800">
+                <span className="text-[10px] text-[#5B8C5A]/50 font-semibold bg-[#2A2A2B] px-2 py-0.5 rounded border border-[#3E5D3D]">
                   Open 4pm - 12am Daily
                 </span>
               </div>
 
               <div className="w-full h-44 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 border border-slate-700 flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
-                <div className="w-12 h-12 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center mb-2 animate-bounce">
+                <div className="w-12 h-12 rounded-full bg-[#5B8C5A]/20 text-[#5B8C5A] flex items-center justify-center mb-2 animate-bounce">
                   <MapPin className="w-6 h-6" />
                 </div>
                 <p className="text-xs font-bold text-slate-100">Zahid Clinic</p>
@@ -106,7 +106,7 @@ export const ContactSection: React.FC = () => {
                   href={mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-3 inline-flex items-center gap-1.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs px-4 py-1.5 rounded-lg shadow-sm transition-colors cursor-pointer"
+                  className="mt-3 inline-flex items-center gap-1.5 bg-[#5B8C5A] hover:bg-[#4A7349] text-white font-bold text-xs px-4 py-1.5 rounded-lg shadow-sm transition-colors cursor-pointer"
                 >
                   <span>Open in Google Maps</span>
                   <ExternalLink className="w-3 h-3" />
@@ -119,7 +119,7 @@ export const ContactSection: React.FC = () => {
           {/* Right: Direct booking CTA, replacing the old fake inquiry form */}
           <div className="lg:col-span-6">
             <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-md h-full flex flex-col items-center justify-center text-center space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-2xl bg-[#5B8C5A]/10 text-[#4A7349] flex items-center justify-center">
                 <Video className="w-7 h-7" />
               </div>
               <h3 className="text-lg font-bold text-slate-900">Ready to Book?</h3>
@@ -128,7 +128,7 @@ export const ContactSection: React.FC = () => {
               </p>
               <button
                 onClick={() => startBookingWithDoctor()}
-                className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs py-3 px-6 rounded-xl shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-2"
+                className="bg-[#5B8C5A] hover:bg-[#4A7349] text-white font-bold text-xs py-3 px-6 rounded-xl shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-2"
               >
                 <Calendar className="w-4 h-4" />
                 <span>Book an Appointment</span>

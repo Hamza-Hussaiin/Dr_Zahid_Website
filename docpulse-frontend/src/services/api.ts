@@ -149,6 +149,15 @@ export const api = {
     return res.json();
   },
 
+    async changeMyPassword(currentPassword: string, newPassword: string): Promise<{ success: boolean; message?: string }> {
+    const res = await fetch(`${API_BASE}/api/auth/me/password`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    return res.json();
+  },
+
   // Real-Time Server-Sent Events (SSE) Stream Listener
   subscribeEvents(userId: string, onEvent: (event: { type: string; payload: any; timestamp: string }) => void): () => void {
     const token = localStorage.getItem('zahid_clinic_token') || '';
