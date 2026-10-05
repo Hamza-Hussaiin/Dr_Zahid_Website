@@ -11,7 +11,6 @@ import { hashPassword, comparePassword } from '../utils/hash';
 import { signToken } from '../utils/jwt';
 import { serializeUser } from '../utils/serialize';
 import { asyncHandler } from '../middleware/errorHandler';
-
 const registerSchema = z.object({
   name: z.string().min(2, 'Name is required.'),
   email: z.string().email('A valid email is required.'),
@@ -225,4 +224,55 @@ export const changeMyPassword = asyncHandler(async (req: Request, res: Response)
     .where(eq(users.id, userRow.id));
 
   return res.json({ success: true, message: 'Your password has been changed successfully.' });
+});
+
+
+const updateContactSchema = z.object({
+  email: z.string().email('A valid email is required.').optional(),
+  phone: z.string().min(1, 'Phone number cannot be empty.').optional(),
+  currentPassword: z.string().min(1, 'Please confirm your current password.'),
+});
+
+export const updateMyContactInfo = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ success: false, message: 'Not authenticated.' });
+  }
+  const parsed = updateContactSchema.parse(req.body);
+
+  if (!parsed.email && !parsed.phone) {
+    return res.status(400).json({ success: false, message: 'Provide a new email or phone number to update.' });
+  }
+
+  const userRow = await db.query.users.findFirst({ where: eq(users.id, req.user.id) });
+  if (!userRow) {
+    return res.status(404).json({ success: false, message: 'Account not found.' });
+  }
+
+  const isCorrect = await comparePassword(parsed.currentPassword, userRow.password);
+  if (!isCorrect) {
+    return res.status(400).json({ success: false, message: 'Your current password is incorrect.' });
+  }
+
+  const updates: Record<string, any> = { updatedAt: new Date() };
+
+  if (parsed.email && parsed.email.toLowerCase() !== userRow.email) {
+    const newEmail = parsed.email.toLowerCase();
+    const existingWithEmail = await db.query.users.findFirst({ where: eq(users.email, newEmail) });
+    if (existingWithEmail) {
+      return res.status(400).json({ success: false, message: 'That email is already in use by another account.' });
+    }
+    updates.email = newEmail;
+  }
+
+  if (parsed.phone && parsed.phone !== userRow.phone) {
+    updates.phone = parsed.phone;
+  }
+
+  const [updatedUser] = await db
+    .update(users)
+    .set(updates)
+    .where(eq(users.id, userRow.id))
+    .returning();
+
+  return res.json({ success: true, user: serializeUser(updatedUser), message: 'Your contact information has been updated.' });
 });

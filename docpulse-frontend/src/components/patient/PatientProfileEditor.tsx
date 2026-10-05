@@ -1,3 +1,4 @@
+import { ContactInfoCard } from '../common/ContactInfoCard';
 import { ChangePasswordCard } from '../common/ChangePasswordCard';
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
@@ -284,6 +285,8 @@ export const PatientProfileEditor: React.FC = () => {
 
           </form>
         </div>
+
+        <ContactInfoCard />
 
         <ChangePasswordCard />
 

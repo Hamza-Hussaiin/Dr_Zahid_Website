@@ -2,7 +2,7 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-
+import { NotFoundPage } from './components/common/NotFoundPage';
 import React from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider, useApp } from './context/AppContext';
@@ -88,13 +88,7 @@ const MainContent: React.FC = () => {
       case 'reset-password':
         return <ResetPasswordPage />;
       default:
-        return (
-          <>
-            <HeroSection />
-            <ServicesSection />
-            <TestimonialsSection />
-          </>
-        );
+        return <NotFoundPage />;
     }
   };
 

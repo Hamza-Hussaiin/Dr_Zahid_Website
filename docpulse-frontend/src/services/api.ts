@@ -158,6 +158,15 @@ export const api = {
     return res.json();
   },
 
+    async updateMyContactInfo(data: { email?: string; phone?: string; currentPassword: string }): Promise<{ success: boolean; user?: User; message?: string }> {
+    const res = await fetch(`${API_BASE}/api/auth/me/contact`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return res.json();
+  },
+
   // Real-Time Server-Sent Events (SSE) Stream Listener
   subscribeEvents(userId: string, onEvent: (event: { type: string; payload: any; timestamp: string }) => void): () => void {
     const token = localStorage.getItem('zahid_clinic_token') || '';

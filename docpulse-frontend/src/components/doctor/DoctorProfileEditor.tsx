@@ -1,3 +1,4 @@
+import { ContactInfoCard } from '../common/ContactInfoCard';
 import { ChangePasswordCard } from '../common/ChangePasswordCard';
 import React, { useState, useEffect, useRef } from 'react';
 import { AvatarUploader } from '../common/AvatarUploader';
@@ -265,6 +266,8 @@ export const DoctorProfileEditor: React.FC = () => {
 
           </form>
         </div>
+
+        <ContactInfoCard />
 
         <ChangePasswordCard />
 
