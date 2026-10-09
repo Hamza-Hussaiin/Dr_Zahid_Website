@@ -5,7 +5,6 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import crypto from 'crypto';
 import { db } from '../db';
-import { doctorProfiles, users, timeSlots, reviews } from '../db/schema';
 import { generateId } from '../utils/ids';
 import { hashPassword } from '../utils/hash';
 import { serializeDoctor, serializeUser, serializeSlot } from '../utils/serialize';
@@ -144,8 +143,7 @@ export const addDoctor = asyncHandler(async (req: Request, res: Response) => {
 
   broadcast({ type: 'doctor_added', payload: serializeDoctor(doctorRow) });
 
-
-    if (generatedPassword) {
+  if (generatedPassword) {
     const { subject, html } = doctorWelcomeEmail(parsed.name, parsed.email, generatedPassword);
     sendEmail(parsed.email, subject, html);
   }
